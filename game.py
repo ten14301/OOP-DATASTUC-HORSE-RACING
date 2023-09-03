@@ -21,6 +21,7 @@ class Game():
         self.lst_ = []
         self.dashboard_text = []
         self.type_bet = ""
+        self.slected_players = ""
         self.bg_image = pygame.image.load(self.backgrounds[self.current_background]).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
         self.position = [375, 430, 485, 540, 595]
@@ -105,8 +106,6 @@ class Game():
             player = Player(player_name, player_coin)
             players.append(player)
 
-
-        selected_player = None
         current_page = 0 
         players_per_page = 4 
 
@@ -137,7 +136,7 @@ class Game():
 
                         for i in range(current_page * players_per_page, min((current_page + 1) * players_per_page, num_players)):
                             if box_x <= mouse_x <= box_x + box_width and box_y_start + (i % players_per_page) * box_height <= mouse_y <= box_y_start + (i % players_per_page + 1) * box_height:
-                                self.selected_player = players[i]
+                                self.slected_players = players[i]
                                 self.Choice_bet()
 
                         for i, button_rect in enumerate(button_rects):
@@ -163,8 +162,6 @@ class Game():
                 pygame.draw.rect(self.screen, (0, 255, 0), button_rect)
                 self.render_text(str(i + 1), button_rect.centerx - 10, button_rect.centery - 10)
 
-            if selected_player is not None:
-                self.selected_player.display_info()
             
             self.back.render(self.screen, mouse_pos)
             pygame.display.flip()
@@ -252,6 +249,7 @@ class Game():
         self.win = Button("BET WIN", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.place_ = Button("BET Place", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.place_win = Button("BET Place WIN", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140),350, 80)
+        print(self.slected_players)
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -259,14 +257,24 @@ class Game():
                 if event.type == pygame.QUIT:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.win.clicked(mouse_pos):
-                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"WIN")
+                    if self.win.clicked(mouse_pos) and self.slected_players != "":
+                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
                        machine_bet.bet_WIN()
-                    if self.place_.clicked(mouse_pos):
-                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"Place")
+                    elif self.win.clicked(mouse_pos):
+                       machine_bet = Machine_bet(Player.player,Player.coin,"WIN")
                        machine_bet.bet_WIN()
-                    if self.place_win.clicked(mouse_pos):
-                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"Place_WIN")
+
+                    if self.place_.clicked(mouse_pos) and self.slected_players != "":
+                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
+                       machine_bet.bet_WIN()
+                    elif self.place_.clicked(mouse_pos):
+                       machine_bet = Machine_bet(Player.player,Player.coin,"Place")
+                       machine_bet.bet_WIN()
+                    if self.place_win.clicked(mouse_pos) and self.slected_players != "":
+                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
+                       machine_bet.bet_WIN()
+                    elif self.place_win.clicked(mouse_pos):
+                       machine_bet = Machine_bet(Player.player,Player.coin,"Place_WIN")
                        machine_bet.bet_WIN()
             self.win.render(self.screen, mouse_pos)
             self.place_.render(self.screen, mouse_pos)

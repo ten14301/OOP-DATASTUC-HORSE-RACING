@@ -8,8 +8,11 @@ class Player:
         self.name = name
         self.coin = coin
 
-    def display_info(self):
-        print(f"Selected Player: {self.name,self.coin}")
+    def display_name(self):
+        return self.name
+    
+    def display_coin(self):
+        return self.coin
 
     @staticmethod
     def create_player_name():
