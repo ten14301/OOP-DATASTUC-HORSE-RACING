@@ -97,8 +97,8 @@ class Game():
         with open('./data/data.json', 'r') as json_file:
             data = json.load(json_file)
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        players = []
 
+        players = []
         for player_key, player_data in data.items():
             player_name = player_data["name"]
             player_coin = player_data["coin"]
@@ -137,7 +137,8 @@ class Game():
 
                         for i in range(current_page * players_per_page, min((current_page + 1) * players_per_page, num_players)):
                             if box_x <= mouse_x <= box_x + box_width and box_y_start + (i % players_per_page) * box_height <= mouse_y <= box_y_start + (i % players_per_page + 1) * box_height:
-                                selected_player = players[i] 
+                                self.selected_player = players[i]
+                                self.Choice_bet()
 
                         for i, button_rect in enumerate(button_rects):
                             if button_rect.collidepoint(mouse_x, mouse_y):
@@ -163,7 +164,7 @@ class Game():
                 self.render_text(str(i + 1), button_rect.centerx - 10, button_rect.centery - 10)
 
             if selected_player is not None:
-                selected_player.display_info()
+                self.selected_player.display_info()
             
             self.back.render(self.screen, mouse_pos)
             pygame.display.flip()
@@ -172,6 +173,7 @@ class Game():
     def menu_(self):
         pygame.display.set_caption("Main Menu")
         run = True
+        self.player = Player("",0)
         self.logo_text = "Horse Racing"
         self.logo_surface = self.logo_font.render(self.logo_text, True, (0, 0, 0))
         self.play_button = Button("NEW GAME", self.font_btn, (400, 280), (52, 78, 91), (100, 120, 140), 280, 80)
@@ -258,14 +260,14 @@ class Game():
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.win.clicked(mouse_pos):
-                       machine_bet = Machine_bet("test",1000,"WIN")
+                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"WIN")
                        machine_bet.bet_WIN()
                     if self.place_.clicked(mouse_pos):
-                        machine_bet = Machine_bet("test",1000,"Place")
-                        machine_bet.bet_WIN()
+                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"Place")
+                       machine_bet.bet_WIN()
                     if self.place_win.clicked(mouse_pos):
-                        machine_bet = Machine_bet("test",1000,"Place_win")
-                        machine_bet.bet_WIN()
+                       machine_bet = Machine_bet(self.selected_player.name,self.selected_player.coin,"Place_WIN")
+                       machine_bet.bet_WIN()
             self.win.render(self.screen, mouse_pos)
             self.place_.render(self.screen, mouse_pos)
             self.place_win.render(self.screen, mouse_pos)
