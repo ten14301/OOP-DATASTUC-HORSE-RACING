@@ -28,8 +28,8 @@ class Player:
         color = color_inactive
         font = pygame.font.Font(None, 36)
         active = False
-
-        text = font.render("Enter Player Name (max 8 characters) AND Press Enter:", True, (255, 255, 255))
+        
+        text = font.render("Enter Player Name (max 8 characters):", True, (255, 255, 255))
         text_rect = text.get_rect(center=(400, 200))
 
         while True:
@@ -56,19 +56,16 @@ class Player:
                                 Player.player = player_name
                                 Player.coin = 100
                                 Player.auto_save(Player.player,Player.coin)
-                                print(Player.player,Player.coin)
-                                game_instance.Choice_bet()
+                                game_instance.Choice_bet(Player.player,Player.coin)
                             else:
                                 player_name = ""
                         elif event.key == pygame.K_BACKSPACE:
                             player_name = player_name[:-1]
                         elif len(player_name) < 8:
                             player_name += event.unicode
-
-
             screen.fill((0, 0, 0))
             pygame.draw.rect(screen, color, input_rect, 2)
-
+            
             txt_surface = font.render(player_name, True, (255, 255, 255))
             width = max(200, txt_surface.get_width()+10)
             input_rect.w = width

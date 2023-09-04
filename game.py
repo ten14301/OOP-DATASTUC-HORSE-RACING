@@ -21,7 +21,7 @@ class Game():
         self.lst_ = []
         self.dashboard_text = []
         self.type_bet = ""
-        self.slected_players = ""
+        self.selected_players = ""
         self.bg_image = pygame.image.load(self.backgrounds[self.current_background]).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
         self.position = [375, 430, 485, 540, 595]
@@ -136,8 +136,8 @@ class Game():
 
                         for i in range(current_page * players_per_page, min((current_page + 1) * players_per_page, num_players)):
                             if box_x <= mouse_x <= box_x + box_width and box_y_start + (i % players_per_page) * box_height <= mouse_y <= box_y_start + (i % players_per_page + 1) * box_height:
-                                self.slected_players = players[i]
-                                self.Choice_bet()
+                                self.selected_players = players[i]
+                                self.Choice_bet(self.selected_players.name,self.selected_players.coin)
 
                         for i, button_rect in enumerate(button_rects):
                             if button_rect.collidepoint(mouse_x, mouse_y):
@@ -169,7 +169,6 @@ class Game():
 
     def menu_(self):
         pygame.display.set_caption("Main Menu")
-        run = True
         self.player = Player("",0)
         self.logo_text = "Horse Racing"
         self.logo_surface = self.logo_font.render(self.logo_text, True, (0, 0, 0))
@@ -244,12 +243,12 @@ class Game():
         else:
             self.horser.image.set_alpha(255)
 
-    def Choice_bet(self):
+    def Choice_bet(self,name,coin):
         pygame.display.set_caption("BET")
+        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
         self.win = Button("BET WIN", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.place_ = Button("BET Place", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.place_win = Button("BET Place WIN", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140),350, 80)
-        print(self.slected_players)
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -257,28 +256,18 @@ class Game():
                 if event.type == pygame.QUIT:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.win.clicked(mouse_pos) and self.slected_players != "":
-                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
-                       machine_bet.bet_WIN()
-                    elif self.win.clicked(mouse_pos):
-                       machine_bet = Machine_bet(Player.player,Player.coin,"WIN")
-                       machine_bet.bet_WIN()
+                    if self.win.clicked(mouse_pos):
+                       self.bet_WIN(name,coin)
 
-                    if self.place_.clicked(mouse_pos) and self.slected_players != "":
-                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
-                       machine_bet.bet_WIN()
-                    elif self.place_.clicked(mouse_pos):
-                       machine_bet = Machine_bet(Player.player,Player.coin,"Place")
-                       machine_bet.bet_WIN()
-                    if self.place_win.clicked(mouse_pos) and self.slected_players != "":
-                       machine_bet = Machine_bet(self.slected_players.name,self.slected_players.coin,"WIN")
-                       machine_bet.bet_WIN()
-                    elif self.place_win.clicked(mouse_pos):
-                       machine_bet = Machine_bet(Player.player,Player.coin,"Place_WIN")
-                       machine_bet.bet_WIN()
+                    if self.place_.clicked(mouse_pos) :
+                       self.bet_WIN(name,coin)
+                    if self.back.clicked(mouse_pos) :
+                       self.menu_()
+            self.screen.blit(player_info_surface, (10, 670))
             self.win.render(self.screen, mouse_pos)
             self.place_.render(self.screen, mouse_pos)
-            self.place_win.render(self.screen, mouse_pos)
+            self.screen.blit(player_info_surface, (10, 670))
+            self.back.render(self.screen, mouse_pos)
             pygame.display.flip()
             
     def order(self):
@@ -365,22 +354,12 @@ class Game():
                 self.dashboard_text.append(f"{horse} Round: finish")
             else:
                 self.dashboard_text.append(f"{horse} Round: {round_}")
+                
 
-
-class Machine_bet:
-    def __init__(self, name, coin, bettype):
-        self.player = Player(name, coin)
-        self.coin = 0
-        self.horse = ""
-        self.place = 0
-        self.bettype = bettype
-        self.game = Game()
-        self.bet_coin = 0
-        self.font_btn = pygame.font.Font(None, 32)
-        self.screen = pygame.display.set_mode((800, 700))
-
-    def bet_WIN(self):
-        pygame.display.set_caption("BET")
+    def bet_WIN(self,name,coin):
+        pygame.display.set_caption("BET WIN")
+        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
+        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         self.HBr = Button("Horse Brown", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.HB = Button("Horse Black", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.HW = Button("Horse White", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -392,21 +371,27 @@ class Machine_bet:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.HBr.clicked(mouse_pos):
-                        self.how_much()
+                        self.how_much(name,coin)
                     if self.HB.clicked(mouse_pos):
-                        self.how_much()
+                        self.how_much(name,coin)
                     if self.HW.clicked(mouse_pos):
-                        self.how_much()
+                        self.how_much(name,coin)
+                    elif self.back.clicked(mouse_pos):
+                        self.Choice_bet(name,coin)
             self.HBr.render(self.screen, mouse_pos)
             self.HB.render(self.screen, mouse_pos)
             self.HW.render(self.screen, mouse_pos)
+            self.back.render(self.screen, mouse_pos)
+            self.screen.blit(player_info_surface, (10, 670))
             pygame.display.flip()
 
-    def how_much(self):
+    def how_much(self,name,coin):
         pygame.display.set_caption("BET")
         self.H = Button("100", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TH = Button("1000", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TTH = Button("10000", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -416,15 +401,19 @@ class Machine_bet:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.H.clicked(mouse_pos):
                         self.bet_coin = 100
-                        self.game.run()
+                        self.run()
                     if self.TH.clicked(mouse_pos):
                         self.bet_coin = 1000
-                        self.game.run()
+                        self.run()
                     if self.TTH.clicked(mouse_pos):
                         self.bet_coin = 10000
-                        self.game.run()
+                        self.run()
+                    if self.back.clicked(mouse_pos):
+                        self.Choice_bet(name,coin)
             self.H.render(self.screen, mouse_pos)
             self.TH.render(self.screen, mouse_pos)
             self.TTH.render(self.screen, mouse_pos)
+            self.back.render(self.screen, mouse_pos)
+            self.screen.blit(player_info_surface, (10, 670))
             pygame.display.flip()
 
