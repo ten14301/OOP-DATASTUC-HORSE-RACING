@@ -29,14 +29,14 @@ class Player:
         font = pygame.font.Font(None, 36)
         active = False
         
-        text = font.render("Enter Player Name (max 8 characters):", True, (255, 255, 255))
+        text = font.render("NAME", True, (255, 255, 255))
         text_rect = text.get_rect(center=(400, 200))
 
         while True:
             mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
+                    quit()
 
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
