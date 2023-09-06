@@ -2,9 +2,11 @@
 import pygame
 import time
 import json
+import easygui
 from button import Button
 from player import Player
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
+
 
 class Game():
     def __init__(self):
@@ -17,6 +19,10 @@ class Game():
         self.font_save = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
         self.backgrounds = ['./assets/bg.png', './assets/final.png']
         self.current_background = 0
+        self.player = ""
+        self.coin = 0
+        self.bet_coin = 0
+        self.horse_bet = ""
         self.custom_font = pygame.font.Font(None, 20)
         self.lst_ = []
         self.dashboard_text = []
@@ -24,17 +30,8 @@ class Game():
         self.selected_players = ""
         self.bg_image = pygame.image.load(self.backgrounds[self.current_background]).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
-        self.position = [375, 430, 485, 540, 595]
-        n = len(self.position)
-        random_numbers = [hash(obj + time.time()) for obj in self.position]
-        for i in range(n):
-            j = random_numbers[i] % (n - 1)
-            self.position[i], self.position[j] = self.position[j], self.position[i]
-        self.horse = Horse_brown(0, self.position[0])
-        self.horseb = Horse_black(0, self.position[1])
-        self.horsew = Horse_white(0, self.position[2])
-        self.horseg = Horse_grey(0, self.position[3])
-        self.horser = Horse_red(0, self.position[4])
+
+
 
 
     def run(self):
@@ -62,8 +59,8 @@ class Game():
         self.screen.blit(self.text, self.text_rect)
         pygame.display.flip()
         time.sleep(1)
-
-        while True:
+        run = True
+        while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
@@ -87,8 +84,19 @@ class Game():
                 for i, text in enumerate(self.lst_):
                     text_surface = self.custom_font.render(text, True, (255, 255, 255))
                     self.screen.blit(text_surface, (0, y_positions[i]))
+                    run = False
+                    self.round_['horse'] = 0
+                    self.round_['horseb'] = 0
+                    self.round_['horseg'] = 0
+                    self.round_['horsew'] = 0
+                    self.round_['horser'] = 0
+
             pygame.display.flip()
             self.clock.tick(60)
+        self.pay_out()
+        
+        
+
 
     def render_text(self,text, x, y):
         text_surface = self.font_save.render(text, True, (255, 255, 255))  # Text color: white
@@ -210,6 +218,17 @@ class Game():
 
 
     def start_position_horse(self):
+        self.position = [375, 430, 485, 540, 595]
+        n = len(self.position)
+        random_numbers = [hash(obj + time.time()) for obj in self.position]
+        for i in range(n):
+            j = random_numbers[i] % (n - 1)
+            self.position[i], self.position[j] = self.position[j], self.position[i]
+        self.horse = Horse_brown(0, self.position[0])
+        self.horseb = Horse_black(0, self.position[1])
+        self.horsew = Horse_white(0, self.position[2])
+        self.horseg = Horse_grey(0, self.position[3])
+        self.horser = Horse_red(0, self.position[4])
         self.moving_sprites.add(self.horse)
         self.moving_sprites.add(self.horseb)
         self.moving_sprites.add(self.horsew)
@@ -245,6 +264,8 @@ class Game():
 
     def Choice_bet(self,name,coin):
         pygame.display.set_caption("BET")
+        self.player = name
+        self.coin = coin
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
         self.win = Button("BET WIN", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -257,10 +278,10 @@ class Game():
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.win.clicked(mouse_pos):
-                       self.bet_WIN(name,coin)
+                       self.bet_WIN()
 
                     if self.place_.clicked(mouse_pos) :
-                       self.bet_WIN(name,coin)
+                       self.bet_WIN()
                     if self.back.clicked(mouse_pos) :
                        self.menu_()
             self.screen.blit(player_info_surface, (10, 670))
@@ -354,15 +375,18 @@ class Game():
                 self.dashboard_text.append(f"{horse} Round: finish")
             else:
                 self.dashboard_text.append(f"{horse} Round: {round_}")
+    
                 
 
-    def bet_WIN(self,name,coin):
+    def bet_WIN(self,):
         pygame.display.set_caption("BET WIN")
-        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
+        player_info_surface = self.font_save.render(f"Player: {self.player} Coin: {self.coin}", True, (255, 255, 255))
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        self.HBr = Button("Horse Brown", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HB = Button("Horse Black", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HW = Button("Horse White", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.HBr = Button("Horse Brown", self.font_btn, (400, 150), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.HB = Button("Horse Black", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.HW = Button("Horse White", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.HR = Button("Horse Red", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.HGR = Button("Horse Grey", self.font_btn, (400, 550), (52, 78, 91), (100, 120, 140), 350, 80)
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -371,27 +395,38 @@ class Game():
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.HBr.clicked(mouse_pos):
-                        self.how_much(name,coin)
+                        self.horse_bet = "Horse Brown"
+                        self.how_much()
                     if self.HB.clicked(mouse_pos):
-                        self.how_much(name,coin)
+                        self.horse_bet = "Horse Black"
+                        self.how_much()
                     if self.HW.clicked(mouse_pos):
-                        self.how_much(name,coin)
+                        self.horse_bet = "Horse White"
+                        self.how_much()
+                    if self.HR.clicked(mouse_pos):
+                        self.horse_bet = "Horse Red"
+                        self.how_much()
+                    if self.HGR.clicked(mouse_pos):
+                        self.horse_bet = "Horse Grey"
+                        self.how_much()
                     elif self.back.clicked(mouse_pos):
-                        self.Choice_bet(name,coin)
+                        self.Choice_bet(self.player,self.coin)
             self.HBr.render(self.screen, mouse_pos)
             self.HB.render(self.screen, mouse_pos)
             self.HW.render(self.screen, mouse_pos)
+            self.HR.render(self.screen, mouse_pos)
+            self.HGR.render(self.screen, mouse_pos)
             self.back.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
             pygame.display.flip()
 
-    def how_much(self,name,coin):
+    def how_much(self):
         pygame.display.set_caption("BET")
         self.H = Button("100", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TH = Button("1000", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TTH = Button("10000", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
+        player_info_surface = self.font_save.render(f"Player: {self.player} Coin: {self.coin}", True, (255, 255, 255))
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -401,19 +436,38 @@ class Game():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.H.clicked(mouse_pos):
                         self.bet_coin = 100
-                        self.run()
+                        if self.coin < self.bet_coin:
+                            easygui.msgbox("Not Enough Money", "Alert")
+                        else:
+                            self.run()
                     if self.TH.clicked(mouse_pos):
                         self.bet_coin = 1000
-                        self.run()
+                        if self.coin < self.bet_coin:
+                            easygui.msgbox("Not Enough Money", "Alert")
+                        else:
+                            self.run()
                     if self.TTH.clicked(mouse_pos):
                         self.bet_coin = 10000
-                        self.run()
+                        if self.coin < self.bet_coin:
+                           easygui.msgbox("Not Enough Money", "Alert")
+                        else:
+                            self.run()
                     if self.back.clicked(mouse_pos):
-                        self.Choice_bet(name,coin)
+                        self.Choice_bet(self.player,self.coin)
             self.H.render(self.screen, mouse_pos)
             self.TH.render(self.screen, mouse_pos)
             self.TTH.render(self.screen, mouse_pos)
             self.back.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
             pygame.display.flip()
+
+    def pay_out(self):
+        if self.lst_[0] == self.horse_bet:
+            self.coin = self.bet_coin * 2
+        else:
+            self.coin -= self.bet_coin
+        self.lst_ = []
+        print(self.lst_,self.round_)
+        Player.auto_save(self.player,self.coin)
+        self.Choice_bet(self.player,self.coin)
 

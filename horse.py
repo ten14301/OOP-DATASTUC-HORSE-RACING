@@ -24,7 +24,8 @@ class Horse(pygame.sprite.Sprite):
             if self.rect.x >= 800:
                 self.rect.x = -self.rect.width
                 self.round += 1
-
+            if self.round > 5:
+                self.round = 0
 
             if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
