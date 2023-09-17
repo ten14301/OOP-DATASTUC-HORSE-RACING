@@ -5,6 +5,7 @@ import json
 import easygui
 from button import Button
 from player import Player
+from Link_list import LinkList
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
 
 
@@ -13,12 +14,13 @@ class Game():
         pygame.init()
         self.screen = pygame.display.set_mode((800, 700))
         pygame.display.set_caption("Horse Racing")
+        self.link_list = LinkList()
         self.font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 100)
         self.font_btn = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 32)
         self.logo_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 72)
         self.font_save = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
-        self.backgrounds = ['./assets/bg.png', './assets/final.png']
-        self.current_background = 0
+        self.link_list.append('./assets/bg.png')
+        self.link_list.append('./assets/final.png')
         self.player = ""
         self.coin = 0
         self.bet_coin = 0
@@ -28,7 +30,7 @@ class Game():
         self.dashboard_text = []
         self.type_bet = ""
         self.selected_players = ""
-        self.bg_image = pygame.image.load(self.backgrounds[self.current_background]).convert()
+        self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(1))).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
 
 
@@ -99,7 +101,7 @@ class Game():
 
 
     def render_text(self,text, x, y):
-        text_surface = self.font_save.render(text, True, (255, 255, 255))  # Text color: white
+        text_surface = self.font_save.render(text, True, (255, 255, 255))
         self.screen.blit(text_surface, (x, y))
 
     def select_save(self):
@@ -300,8 +302,7 @@ class Game():
             "horser": self.horser.round_
         }
         if max(self.round_.values()) >= 4 :
-                current_background = 1
-                self.bg_image = pygame.image.load(self.backgrounds[current_background]).convert()
+                self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(2))).convert()
                 self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
                 if self.round_['horse'] >= 5 and self.round_['horse'] == max(self.round_.values()):
                     self.horse.stop()
