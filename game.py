@@ -474,10 +474,10 @@ class Game():
             self.coin = self.bet_coin * 2
         else:
             self.coin -= self.bet_coin
-        if (self.My_queue.is_empty()):
+        if (not self.My_queue.is_empty()):
             for i in range(self.My_queue.size()):
                 self.My_queue.dequeue()
-        print(self.player.name,self.coin)
+        print(self.player.name,self.coin,self.My_queue.size())
         self.player.auto_save(self.player.name,self.coin)
         self.Choice_bet(self.player.name,self.coin)
 
