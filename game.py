@@ -38,13 +38,19 @@ class Game():
 
 
     def run(self):
+        mixer.init()
         self.clock = pygame.time.Clock()
         self.bg_image = pygame.image.load('./assets/bg.png').convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
         self.moving_sprites = pygame.sprite.Group()
         self.start_position_horse()
+        go_mus = mixer.music
+        go_mus.load('./assets/music/go.wav')
+
         self.topic_dashboard = "Horse Racing Score-Board"
+        go_mus.play()
         for i in range(3, 0, -1):
+
             # ล้างหน้าจอและเปลี่ยนพื้นหลัง
             self.screen.fill((255, 255, 255))
             self.screen.blit(self.bg_image, (0, 0))
@@ -54,7 +60,8 @@ class Game():
             text_rect = text.get_rect(center=(400, 350))
             self.screen.blit(text, text_rect)
             self.display.flip()
-            time.sleep(1)
+            time.sleep(0.5)
+
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.bg_image, (0, 0))
         self.text = self.font.render("start", True, (255, 255, 255))
@@ -62,6 +69,10 @@ class Game():
         self.screen.blit(self.text, self.text_rect)
         self.display.flip()
         time.sleep(1)
+        go_mus.stop()
+        time.sleep(1)
+        go_mus.load('./assets/music/bg_music.mp3')
+        go_mus.play()
         run = True
         while run:
             for event in pygame.event.get():
@@ -99,6 +110,7 @@ class Game():
 
             self.display.flip()
             self.clock.tick(60)
+        go_mus.stop()
         self.pay_out()
 
 
