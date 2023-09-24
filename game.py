@@ -14,8 +14,14 @@ class Game():
         pygame.init()
         self.display = pygame.display
         self.link_list = LinkList()
+        self.merge_sort = MergeSort()
         self.player = Player()
         self.button = Button()
+        self.coin = coin
+        self.bet_coin = bet_coin
+        self.horse_bet = horse_bet
+        self.lst_ = lst_
+        self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
         self.display.set_caption("Horse Racing")
         self.font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 100)
@@ -27,14 +33,6 @@ class Game():
         self.link_list.append('./assets/final.png')
         self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(1))).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
-        self.coin = coin
-        self.bet_coin = bet_coin
-        self.horse_bet = horse_bet
-        self.lst_ = lst_
-        self.selected_players = selected_players
-
-
-
 
 
     def run(self):
@@ -199,7 +197,7 @@ class Game():
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.play_button.clicked(mouse_pos):
-                        Player.create_player_name()
+                        self.player.create_player_name()
                     if self.play_continue.clicked(mouse_pos):
                         self.select_save()
                     if self.exit.clicked(mouse_pos):
@@ -266,7 +264,7 @@ class Game():
 
     def Choice_bet_play(self,name,coin):
         pygame.display.set_caption("Choice To Play")
-        self.player = name
+        self.player.name = name
         self.coin = coin
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
@@ -294,7 +292,7 @@ class Game():
 
     def Choice_bet(self,name,coin):
         pygame.display.set_caption("BET")
-        self.player = name
+        self.player.name = name
         self.coin = coin
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
@@ -364,7 +362,6 @@ class Game():
             (self.horsew, self.horsew.position, self.horsew.round_),
             (self.horser, self.horser.position, self.horser.round_)
         ]
-        self.merge_sort = MergeSort()
         self.merge_sort.merge_sort(horses)
         sorted_horses = [(horse[0].__class__.__name__, horse[2]) for horse in horses]
 
@@ -383,7 +380,7 @@ class Game():
 
     def bet_WIN(self,):
         pygame.display.set_caption("BET WIN")
-        player_info_surface = self.font_save.render(f"Player: {self.player} Coin: {self.coin}", True, (255, 255, 255))
+        player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.coin}", True, (255, 255, 255))
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         self.HBr = Button("Horse Brown", self.font_btn, (400, 150), (52, 78, 91), (100, 120, 140), 350, 80)
         self.HB = Button("Horse Black", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -413,7 +410,7 @@ class Game():
                         self.horse_bet = "Horse Grey"
                         self.how_much()
                     elif self.back.clicked(mouse_pos):
-                        self.Choice_bet(self.player,self.coin)
+                        self.Choice_bet(self.player.name,self.coin)
             self.HBr.render(self.screen, mouse_pos)
             self.HB.render(self.screen, mouse_pos)
             self.HW.render(self.screen, mouse_pos)
@@ -429,7 +426,7 @@ class Game():
         self.TH = Button("1000", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TTH = Button("10000", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {self.player} Coin: {self.coin}", True, (255, 255, 255))
+        player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.coin}", True, (255, 255, 255))
         while True:
             self.screen.fill((52, 78, 91))
             mouse_pos = pygame.mouse.get_pos()
@@ -456,7 +453,7 @@ class Game():
                         else:
                             self.run()
                     if self.back.clicked(mouse_pos):
-                        self.Choice_bet(self.player,self.coin)
+                        self.Choice_bet(self.player.name,self.coin)
             self.H.render(self.screen, mouse_pos)
             self.TH.render(self.screen, mouse_pos)
             self.TTH.render(self.screen, mouse_pos)
@@ -471,6 +468,7 @@ class Game():
             self.coin -= self.bet_coin
         self.lst_ = []
         print(self.lst_,self.round_)
-        Player.auto_save(self.player,self.coin)
-        self.Choice_bet(self.player,self.coin)
+        print(self.player.name,self.coin)
+        self.player.auto_save(self.player.name,self.coin)
+        self.Choice_bet(self.player.name,self.coin)
 
