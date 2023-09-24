@@ -4,7 +4,7 @@ from button import Button
 import game
 import json
 class Player:
-    def __init__(self, name, coin):
+    def __init__(self, name="", coin=0):
         self.name = name
         self.coin = coin
 
@@ -56,7 +56,7 @@ class Player:
                                 Player.player = player_name
                                 Player.coin = 100
                                 Player.auto_save(Player.player,Player.coin)
-                                game_instance.Choice_bet(Player.player,Player.coin)
+                                game_instance.Choice_bet_play(Player.player,Player.coin)
                             else:
                                 player_name = ""
                         elif event.key == pygame.K_BACKSPACE:

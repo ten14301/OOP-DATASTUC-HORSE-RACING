@@ -18,6 +18,7 @@ class LinkList:
                 current = current.next
             current.next = new_node
             return current
+        
     def get_link_list(self, node):
         current = self.head
         count = 1
@@ -28,5 +29,6 @@ class LinkList:
             return current.data
         else:
             return None
+        
 
     

@@ -1,37 +1,38 @@
-
 import pygame
 import time
 import json
 import easygui
 from button import Button
 from player import Player
-from Link_list import LinkList
+from singlely_Link_list import LinkList
+from merg_sort import MergeSort
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
 
 
 class Game():
-    def __init__(self):
+    def __init__(self,coin=0,bet_coin=0,horse_bet="",lst_=[],selected_players=""):
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 700))
-        pygame.display.set_caption("Horse Racing")
+        self.display = pygame.display
         self.link_list = LinkList()
+        self.player = Player()
+        self.button = Button()
+        self.screen = self.display.set_mode((800, 700))
+        self.display.set_caption("Horse Racing")
         self.font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 100)
         self.font_btn = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 32)
         self.logo_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 72)
         self.font_save = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
+        self.custom_font = pygame.font.Font(None, 20)
         self.link_list.append('./assets/bg.png')
         self.link_list.append('./assets/final.png')
-        self.player = ""
-        self.coin = 0
-        self.bet_coin = 0
-        self.horse_bet = ""
-        self.custom_font = pygame.font.Font(None, 20)
-        self.lst_ = []
-        self.dashboard_text = []
-        self.type_bet = ""
-        self.selected_players = ""
         self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(1))).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
+        self.coin = coin
+        self.bet_coin = bet_coin
+        self.horse_bet = horse_bet
+        self.lst_ = lst_
+        self.selected_players = selected_players
+
 
 
 
@@ -147,7 +148,7 @@ class Game():
                         for i in range(current_page * players_per_page, min((current_page + 1) * players_per_page, num_players)):
                             if box_x <= mouse_x <= box_x + box_width and box_y_start + (i % players_per_page) * box_height <= mouse_y <= box_y_start + (i % players_per_page + 1) * box_height:
                                 self.selected_players = players[i]
-                                self.Choice_bet(self.selected_players.name,self.selected_players.coin)
+                                self.Choice_bet_play(self.selected_players.name,self.selected_players.coin)
 
                         for i, button_rect in enumerate(button_rects):
                             if button_rect.collidepoint(mouse_x, mouse_y):
@@ -179,7 +180,6 @@ class Game():
 
     def menu_(self):
         pygame.display.set_caption("Main Menu")
-        self.player = Player("",0)
         self.logo_text = "Horse Racing"
         self.logo_surface = self.logo_font.render(self.logo_text, True, (0, 0, 0))
         self.play_button = Button("NEW GAME", self.font_btn, (400, 280), (52, 78, 91), (100, 120, 140), 280, 80)
@@ -264,6 +264,34 @@ class Game():
         else:
             self.horser.image.set_alpha(255)
 
+    def Choice_bet_play(self,name,coin):
+        pygame.display.set_caption("Choice To Play")
+        self.player = name
+        self.coin = coin
+        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
+        self.Bet_play = Button("BET", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
+        self.Play_as_hourse = Button("Play", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
+        while True:
+            self.screen.fill((52, 78, 91))
+            mouse_pos = pygame.mouse.get_pos()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.Bet_play.clicked(mouse_pos):
+                       self.Choice_bet(name,coin)
+                    if self.Play_as_hourse.clicked(mouse_pos) :
+                       pass
+                    if self.back.clicked(mouse_pos) :
+                       self.menu_()
+            self.screen.blit(player_info_surface, (10, 670))
+            self.Bet_play.render(self.screen, mouse_pos)
+            self.Play_as_hourse.render(self.screen, mouse_pos)
+            self.screen.blit(player_info_surface, (10, 670))
+            self.back.render(self.screen, mouse_pos)
+            pygame.display.flip()
+
     def Choice_bet(self,name,coin):
         pygame.display.set_caption("BET")
         self.player = name
@@ -277,7 +305,7 @@ class Game():
             mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    quit()
+                    quit()  
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.win.clicked(mouse_pos):
                        self.bet_WIN()
@@ -285,7 +313,7 @@ class Game():
                     if self.place_.clicked(mouse_pos) :
                        self.bet_WIN()
                     if self.back.clicked(mouse_pos) :
-                       self.menu_()
+                       self.Choice_bet_play(name,coin)
             self.screen.blit(player_info_surface, (10, 670))
             self.win.render(self.screen, mouse_pos)
             self.place_.render(self.screen, mouse_pos)
@@ -325,35 +353,8 @@ class Game():
                     if "Horse Red" not in self.lst_:
                         self.lst_.append("Horse Red")
 
-    def merge_sort(self, arr):
-        if len(arr) > 1:
-            mid = len(arr) // 2
-            left_half = arr[:mid]
-            right_half = arr[mid:]
 
-            self.merge_sort(left_half)
-            self.merge_sort(right_half)
 
-            i = j = k = 0
-
-            while i < len(left_half) and j < len(right_half):
-                if left_half[i][1] > right_half[j][1] or (left_half[i][1] == right_half[j][1] and left_half[i][2] > right_half[j][2]):
-                    arr[k] = left_half[i]
-                    i += 1
-                else:
-                    arr[k] = right_half[j]
-                    j += 1
-                k += 1
-
-            while i < len(left_half):
-                arr[k] = left_half[i]
-                i += 1
-                k += 1
-
-            while j < len(right_half):
-                arr[k] = right_half[j]
-                j += 1
-                k += 1
 
     def sort_horses(self):
         horses = [
@@ -363,7 +364,8 @@ class Game():
             (self.horsew, self.horsew.position, self.horsew.round_),
             (self.horser, self.horser.position, self.horser.round_)
         ]
-        self.merge_sort(horses)
+        self.merge_sort = MergeSort()
+        self.merge_sort.merge_sort(horses)
         sorted_horses = [(horse[0].__class__.__name__, horse[2]) for horse in horses]
 
         return sorted_horses
