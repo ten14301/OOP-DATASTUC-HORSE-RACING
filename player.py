@@ -8,6 +8,12 @@ class Player:
         self.name = name
         self.coin = coin
 
+    def display_name(self):
+        return self.name
+    
+    def display_coin(self):
+        return self.coin
+
     def create_player_name(self):
         display = pygame.display
         back_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)

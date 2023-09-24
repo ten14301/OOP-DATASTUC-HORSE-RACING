@@ -7,6 +7,7 @@ from player import Player
 from singlely_Link_list import LinkList
 from merg_sort import MergeSort
 from My_queue import queue
+from pygame import mixer 
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
 
 
@@ -102,9 +103,6 @@ class Game():
 
 
 
-        
-        
-
 
     def render_text(self,text, x, y):
         text_surface = self.font_save.render(text, True, (255, 255, 255))
@@ -184,16 +182,20 @@ class Game():
 
 
     def menu_(self):
+        mixer.init()
         self.display.set_caption("Main Menu")
-        self.logo_text = "Horse Racing"
-        self.logo_surface = self.logo_font.render(self.logo_text, True, (0, 0, 0))
-        self.play_button = Button("NEW GAME", self.font_btn, (400, 280), (52, 78, 91), (100, 120, 140), 280, 80)
-        self.play_continue = Button("Continue", self.font_btn, (400, 380), (52, 78, 91), (100, 120, 140), 280, 80)
-        self.exit = Button("EXIT", self.font_btn, (400, 480), (52, 78, 91), (100, 120, 140), 280, 80)
+        mixer.music.load('./assets/music/bg_music.mp3')
+        mixer.music.play(-1)
+        self.play_button = Button("NEW GAME", self.font_btn, (400, 300), (52, 78, 91), (0, 0, 0), 280, 80)
+        self.play_continue = Button("Continue", self.font_btn, (400, 400), (52, 78, 91), (0, 0, 0), 280, 80)
+        self.exit = Button("EXIT", self.font_btn, (400, 500), (52, 78, 91), (0, 0, 0), 280, 80)
         background_image = pygame.image.load("./assets/MENU_BG.png") 
         background_image = pygame.transform.scale(background_image, (800, 700))
 
-        logo_y = (self.screen.get_height() - self.logo_surface.get_height()) // 2 - 100
+        logo_image = pygame.image.load("./assets/logo.png")
+        logo_image = pygame.transform.scale(logo_image, (800, 700))
+        logo_image = pygame.transform.scale(logo_image, (500, 150))
+        logo_y = (self.screen.get_height() - logo_image.get_height()) // 2 - 100
 
         while True:
             self.screen.blit(background_image, (0, 0))
@@ -211,10 +213,10 @@ class Game():
                         quit()
 
             logo_y -= 0.4
-            if logo_y < 100:
-                logo_y = 100 
-            logo_x = (self.screen.get_width() - self.logo_surface.get_width()) // 2
-            self.screen.blit(self.logo_surface, (logo_x, logo_y))
+            if logo_y < 50:
+                logo_y = 50
+            logo_x = (self.screen.get_width() - logo_image.get_width()) // 2
+            self.screen.blit(logo_image, (logo_x, logo_y))
 
             self.play_button.render(self.screen, mouse_pos)
             self.play_continue.render(self.screen, mouse_pos)
@@ -470,8 +472,9 @@ class Game():
 
     def pay_out(self):
         dequeue = self.My_queue.dequeue()
+        print(dequeue,self.horse_bet,self.bet_coin,self.coin)
         if dequeue == self.horse_bet:
-            self.coin = self.bet_coin * 2
+            self.coin += self.bet_coin * 2
         else:
             self.coin -= self.bet_coin
         if (not self.My_queue.is_empty()):
