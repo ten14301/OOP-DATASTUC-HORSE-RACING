@@ -8,16 +8,11 @@ class Player:
         self.name = name
         self.coin = coin
 
-    def display_name(self):
-        return self.name
-    
-    def display_coin(self):
-        return self.coin
-
     def create_player_name(self):
+        display = pygame.display
         back_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
         screen = pygame.display.set_mode((800, 600))
-        pygame.display.set_caption("Create Player")
+        display.set_caption("Create Player")
         back = Button("<<<", back_font, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         game_instance = game.Game() 
         input_rect = pygame.Rect(300, 300, 200, 40)
@@ -70,7 +65,7 @@ class Player:
             screen.blit(text, text_rect)
             back.render(screen, mouse_pos)
 
-            pygame.display.flip()
+            display.flip()
 
     def auto_save(self,player_name, player_coin):
     

@@ -6,6 +6,7 @@ from button import Button
 from player import Player
 from singlely_Link_list import LinkList
 from merg_sort import MergeSort
+from My_queue import queue
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
 
 
@@ -15,12 +16,12 @@ class Game():
         self.display = pygame.display
         self.link_list = LinkList()
         self.merge_sort = MergeSort()
+        self.My_queue = queue()
         self.player = Player()
         self.button = Button()
         self.coin = coin
         self.bet_coin = bet_coin
         self.horse_bet = horse_bet
-        self.lst_ = lst_
         self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
         self.display.set_caption("Horse Racing")
@@ -51,14 +52,14 @@ class Game():
             text = self.font.render(str(i), True, (255, 255, 255))
             text_rect = text.get_rect(center=(400, 350))
             self.screen.blit(text, text_rect)
-            pygame.display.flip()
+            self.display.flip()
             time.sleep(1)
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.bg_image, (0, 0))
         self.text = self.font.render("start", True, (255, 255, 255))
         self.text_rect = self.text.get_rect(center=(400, 350))
         self.screen.blit(self.text, self.text_rect)
-        pygame.display.flip()
+        self.display.flip()
         time.sleep(1)
         run = True
         while run:
@@ -75,26 +76,32 @@ class Game():
             self.moving_sprites.update(0.2)
             text_dashboard_topic = self.custom_font.render(self.topic_dashboard, True, (255, 255, 255))
             self.screen.blit(text_dashboard_topic, (0, 0))
-            if len(self.lst_) < 5:
+            if self.My_queue.size() < 5:
                 y_positions = [10, 20, 30, 40, 50]
                 for i, text in enumerate(self.dashboard_text):
                     text_surface = self.custom_font.render(text, True, (255, 255, 255))
                     self.screen.blit(text_surface, (0, y_positions[i]))
-            elif len(self.lst_) >= 5:
+            elif self.My_queue.size() >= 5:
+                print(self.My_queue.size())
+                print(self.My_queue.items)
                 y_positions = [10, 20, 30, 40, 50]
-                for i, text in enumerate(self.lst_):
+                for i, text in enumerate(self.My_queue.items):
                     text_surface = self.custom_font.render(text, True, (255, 255, 255))
                     self.screen.blit(text_surface, (0, y_positions[i]))
-                    run = False
-                    self.round_['horse'] = 0
-                    self.round_['horseb'] = 0
-                    self.round_['horseg'] = 0
-                    self.round_['horsew'] = 0
-                    self.round_['horser'] = 0
+                print(self.horse.round_, self.horseb.round_,self.horsew.round_,self.horseg.round_,self.horser.round_)
+                self.round_['horse'] = 0
+                self.round_['horseb'] = 0
+                self.round_['horseg'] = 0
+                self.round_['horsew'] = 0
+                self.round_['horser'] = 0
+                run = False
 
-            pygame.display.flip()
+            self.display.flip()
             self.clock.tick(60)
         self.pay_out()
+
+
+
         
         
 
@@ -173,11 +180,11 @@ class Game():
 
             
             self.back.render(self.screen, mouse_pos)
-            pygame.display.flip()
+            self.display.flip()
 
 
     def menu_(self):
-        pygame.display.set_caption("Main Menu")
+        self.display.set_caption("Main Menu")
         self.logo_text = "Horse Racing"
         self.logo_surface = self.logo_font.render(self.logo_text, True, (0, 0, 0))
         self.play_button = Button("NEW GAME", self.font_btn, (400, 280), (52, 78, 91), (100, 120, 140), 280, 80)
@@ -213,7 +220,7 @@ class Game():
             self.play_continue.render(self.screen, mouse_pos)
             self.exit.render(self.screen, mouse_pos)
 
-            pygame.display.flip()
+            self.display.flip()
 
 
 
@@ -263,7 +270,7 @@ class Game():
             self.horser.image.set_alpha(255)
 
     def Choice_bet_play(self,name,coin):
-        pygame.display.set_caption("Choice To Play")
+        self.display.set_caption("Choice To Play")
         self.player.name = name
         self.coin = coin
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
@@ -288,10 +295,10 @@ class Game():
             self.Play_as_hourse.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
             self.back.render(self.screen, mouse_pos)
-            pygame.display.flip()
+            self.display.flip()
 
     def Choice_bet(self,name,coin):
-        pygame.display.set_caption("BET")
+        self.display.set_caption("BET")
         self.player.name = name
         self.coin = coin
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
@@ -317,7 +324,7 @@ class Game():
             self.place_.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
             self.back.render(self.screen, mouse_pos)
-            pygame.display.flip()
+            self.display.flip()
             
     def order(self):
         self.round_= {
@@ -332,24 +339,24 @@ class Game():
                 self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
                 if self.round_['horse'] >= 5 and self.round_['horse'] == max(self.round_.values()):
                     self.horse.stop()
-                    if "Horse Brown" not in self.lst_:
-                        self.lst_.append("Horse Brown")
+                    if "Horse Brown" not in self.My_queue.items:
+                        self.My_queue.enqueue("Horse Brown")
                 if self.round_['horseb'] >= 5 and self.round_['horseb'] == max(self.round_.values()):
                     self.horseb.stop()
-                    if "Horse Black" not in self.lst_:
-                        self.lst_.append("Horse Black")
+                    if "Horse Black" not in self.My_queue.items:
+                        self.My_queue.enqueue("Horse Black")
                 if self.round_['horseg'] >= 5 and self.round_['horseg'] == max(self.round_.values()):
                     self.horseg.stop()
-                    if "Horse Grey" not in self.lst_:
-                        self.lst_.append("Horse Grey")
+                    if "Horse Grey" not in self.My_queue.items:
+                        self.My_queue.enqueue("Horse Grey")
                 if self.round_['horsew'] >= 5 and self.round_['horsew'] == max(self.round_.values()):
                     self.horsew.stop()
-                    if "Horse White" not in self.lst_:
-                        self.lst_.append("Horse White")
+                    if "Horse White" not in self.My_queue.items:
+                        self.My_queue.enqueue("Horse White")
                 if self.round_['horser'] >= 5 and self.round_['horser'] == max(self.round_.values()) :
                     self.horser.stop()
-                    if "Horse Red" not in self.lst_:
-                        self.lst_.append("Horse Red")
+                    if "Horse Red" not in self.My_queue.items:
+                        self.My_queue.enqueue("Horse Red")
 
 
 
@@ -379,7 +386,7 @@ class Game():
                 
 
     def bet_WIN(self,):
-        pygame.display.set_caption("BET WIN")
+        self.display.set_caption("BET WIN")
         player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.coin}", True, (255, 255, 255))
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         self.HBr = Button("Horse Brown", self.font_btn, (400, 150), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -418,10 +425,10 @@ class Game():
             self.HGR.render(self.screen, mouse_pos)
             self.back.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
-            pygame.display.flip()
+            self.display.flip()
 
     def how_much(self):
-        pygame.display.set_caption("BET")
+        self.display.set_caption("BET")
         self.H = Button("100", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TH = Button("1000", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.TTH = Button("10000", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -459,15 +466,15 @@ class Game():
             self.TTH.render(self.screen, mouse_pos)
             self.back.render(self.screen, mouse_pos)
             self.screen.blit(player_info_surface, (10, 670))
-            pygame.display.flip()
+            self.display.flip()
 
     def pay_out(self):
-        if self.lst_[0] == self.horse_bet:
+        dequeue = self.My_queue.dequeue()
+        if dequeue == self.horse_bet:
             self.coin = self.bet_coin * 2
         else:
             self.coin -= self.bet_coin
         self.lst_ = []
-        print(self.lst_,self.round_)
         print(self.player.name,self.coin)
         self.player.auto_save(self.player.name,self.coin)
         self.Choice_bet(self.player.name,self.coin)
