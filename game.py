@@ -8,7 +8,7 @@ from singlely_Link_list import LinkList
 from merg_sort import MergeSort
 from My_queue import queue
 from pygame import mixer
-from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
+from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, Player_Horse_red
 
 
 class Game:
@@ -117,6 +117,88 @@ class Game:
         go_mus.stop()
         self.pay_out()
 
+    def run_manual(self):
+        mixer.init()
+        self.clock = pygame.time.Clock()
+        self.bg_image = pygame.image.load('./assets/bg.png').convert()
+        self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
+        self.moving_sprites = pygame.sprite.Group()
+        self.start_position_horse_manual()
+        self.moving_sprites.add(self.horser)
+        go_mus = mixer.music
+        go_mus.load('./assets/music/go.wav')
+
+        self.topic_dashboard = "Horse Racing Score-Board"
+        go_mus.play()
+        for i in range(3, 0, -1):
+
+            # ล้างหน้าจอและเปลี่ยนพื้นหลัง
+            self.screen.fill((255, 255, 255))
+            self.screen.blit(self.bg_image, (0, 0))
+
+            # แสดงข้อความนับถอยหลัง
+            text = self.font.render(str(i), True, (255, 255, 255))
+            text_rect = text.get_rect(center=(400, 350))
+            self.screen.blit(text, text_rect)
+            self.display.flip()
+            time.sleep(0.5)
+
+        self.screen.fill((255, 255, 255))
+        self.screen.blit(self.bg_image, (0, 0))
+        self.text = self.font.render("start", True, (255, 255, 255))
+        self.text_rect = self.text.get_rect(center=(400, 350))
+        self.screen.blit(self.text, self.text_rect)
+        self.display.flip()
+        time.sleep(1)
+        go_mus.stop()
+        time.sleep(1)
+        go_mus.load('./assets/music/bg_music.mp3')
+        go_mus.play()
+        run = True
+        while run:
+            keys = pygame.key.get_pressed()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+                if keys[pygame.K_UP]:
+                    self.horser.animate()
+            
+            self.order()
+            self.score_board()
+            self.illutionist()
+            
+            self.screen.blit(self.bg_image, (0, 0))
+            self.moving_sprites.draw(self.screen)
+            self.moving_sprites.update(0.2)
+            text_dashboard_topic = self.custom_font.render(self.topic_dashboard, True, (255, 255, 255))
+            self.screen.blit(text_dashboard_topic, (0, 0))
+            if self.My_queue.size() < 5:
+                y_positions = [10, 20, 30, 40, 50]
+                for i, text in enumerate(self.dashboard_text):
+                    text_surface = self.custom_font.render(text, True, (255, 255, 255))
+                    self.screen.blit(text_surface, (0, y_positions[i]))
+            elif self.My_queue.size() >= 5:
+                print(self.My_queue.size())
+                print(self.My_queue.items)
+                y_positions = [10, 20, 30, 40, 50]
+                for i, text in enumerate(self.My_queue.items):
+                    text_surface = self.custom_font.render(text, True, (255, 255, 255))
+                    self.screen.blit(text_surface, (0, y_positions[i]))
+                print(self.horse.round_, self.horseb.round_,self.horsew.round_,self.horseg.round_,self.horser.round_)
+                self.round_['horse'] = 0
+                self.round_['horseb'] = 0
+                self.round_['horseg'] = 0
+                self.round_['horsew'] = 0
+                self.round_['horser'] = 0
+                run = False
+
+            self.display.flip()
+            self.clock.tick(60)
+        go_mus.stop()
+        self.pay_out()
+
+
+
 
 
 
@@ -200,7 +282,7 @@ class Game:
 
     def menu_(self):
         self.player.name = ""
-        self.music.play()
+        self.music.play(-1)
         self.display.set_caption("Main Menu")
 
         play_button = Button("NEW GAME", self.font_btn, (400, 300), (52, 78, 91), (0, 0, 0), 280, 80)
@@ -238,7 +320,7 @@ class Game:
                             music_stop = True
                         elif (music_stop):
                             stop_music_button = Button("ON", self.font_btn_sound, (50, 650), (52, 78, 91), (0, 0, 0), 50, 50)
-                            self.music.play()
+                            self.music.play(-1)
                             music_stop = False
 
             logo_y -= 0.4
@@ -253,6 +335,28 @@ class Game:
             stop_music_button.render(self.screen, mouse_pos)
 
             self.display.flip()
+
+    def start_position_horse_manual(self):
+        self.position = [375, 430, 485, 540, 595]
+        n = len(self.position)
+        random_numbers = [hash(obj + time.time()) for obj in self.position]
+        for i in range(n):
+            j = random_numbers[i] % (n - 1)
+            self.position[i], self.position[j] = self.position[j], self.position[i]
+        self.horse = Horse_brown(0, self.position[0])
+        self.horseb = Horse_black(0, self.position[1])
+        self.horsew = Horse_white(0, self.position[2])
+        self.horseg = Horse_grey(0, self.position[3])
+        self.horser = Player_Horse_red(0, self.position[4])
+        self.moving_sprites.add(self.horse)
+        self.moving_sprites.add(self.horseb)
+        self.moving_sprites.add(self.horsew)
+        self.moving_sprites.add(self.horseg)
+
+        self.horse.animate()
+        self.horseb.animate()
+        self.horsew.animate()
+        self.horseg.animate()
 
 
 
@@ -305,7 +409,7 @@ class Game:
         self.display.set_caption("Choice To Play")
         self.player.name = name
         self.coin = coin
-        self.music.play()
+        self.music.stop()
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
         self.Bet_play = Button("BET", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -320,7 +424,7 @@ class Game:
                     if self.Bet_play.clicked(mouse_pos):
                        self.Choice_bet(name,coin)
                     if self.Play_as_hourse.clicked(mouse_pos) :
-                       pass
+                       self.run_manual()
                     if self.back.clicked(mouse_pos) :
                        self.menu_()
             self.screen.blit(player_info_surface, (10, 670))

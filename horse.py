@@ -31,6 +31,22 @@ class Horse(pygame.sprite.Sprite):
                 self.current_sprite = 0
             self.image = self.sprites[int(self.current_sprite)]
 
+    #ขยับและกำหนดค่าความเร็วของแต่ละเฟรมบนตัวม้า
+    def update_manual(self, speed):
+        if self.is_animating :
+            self.current_sprite += speed
+            time_tick = pygame.time.get_ticks()
+            self.rect.x +=  ((time_tick // 1000) + id(self)) % 5 + 3
+            if self.rect.x >= 800:
+                self.rect.x = -self.rect.width
+                self.round += 1
+            if self.round > 5:
+                self.round = 0
+
+            if self.current_sprite >= len(self.sprites):
+                self.current_sprite = 0
+            self.image = self.sprites[int(self.current_sprite)]
+
     @property
     def position(self) -> int:
         return int(self.rect.x)
@@ -89,6 +105,19 @@ class Horse_grey(Horse):
         self.rect = pygame.Rect(pos_x, pos_y, 20, 20)
 
 class Horse_red(Horse):
+    def __init__(self, pos_x,pos_y):
+        super().__init__(pos_x,pos_y)
+        self.sprites = []
+        self.sprites.append(pygame.image.load('./assets/red/move-red1.png'))
+        self.sprites.append(pygame.image.load('./assets/red/move-red2.png'))
+        self.sprites.append(pygame.image.load('./assets/red/move-red3.png'))
+        self.sprites.append(pygame.image.load('./assets/red/move-red4.png'))
+        self.sprites.append(pygame.image.load('./assets/red/move-red5.png'))
+        self.image = self.sprites[self.current_sprite]
+        self.rect = pygame.Rect(pos_x, pos_y, 20, 20)
+
+
+class Player_Horse_red(Horse):
     def __init__(self, pos_x,pos_y):
         super().__init__(pos_x,pos_y)
         self.sprites = []
