@@ -14,7 +14,6 @@ class Button:
             width,
             height,
         )
-        self.arrow_icon = ">"
         self.shadow_color = (128, 128, 128)
         self.shadow_offset = (10, 10) 
 
@@ -26,17 +25,10 @@ class Button:
         color = self.color_hover if self.rect.collidepoint(mouse_pos) else self.color_idle
         pygame.draw.rect(screen, color, self.rect)
 
-        arrow_x = self.rect.left - 30
-        arrow_y = (self.rect.centery - self.font.get_height() // 2) + 15
-
-        if color == self.color_hover:
-            arrow_text_surface = self.font.render(self.arrow_icon, True, (51,51, 255))
-            arrow_text_rect = arrow_text_surface.get_rect(left=arrow_x, centery=arrow_y)
-            screen.blit(arrow_text_surface, arrow_text_rect)
-
         text_surface = self.font.render(self.text, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
 
     def clicked(self, mouse_pos):
         return self.rect.collidepoint(mouse_pos)
+

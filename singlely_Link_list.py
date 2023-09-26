@@ -19,7 +19,7 @@ class LinkList:
             current.next = new_node
             return current
         
-    def get_link_list(self, node):
+    def get_link_list(self, node) -> str or None:
         current = self.head
         count = 1
         while current and count < node:

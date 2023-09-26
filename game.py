@@ -7,19 +7,21 @@ from player import Player
 from singlely_Link_list import LinkList
 from merg_sort import MergeSort
 from My_queue import queue
-from pygame import mixer 
+from pygame import mixer
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red
 
 
-class Game():
-    def __init__(self,coin=0,bet_coin=0,horse_bet="",lst_=[],selected_players=""):
+class Game:
+    def __init__(self,coin=0,bet_coin=0,horse_bet="",selected_players=""):
         pygame.init()
+        mixer.init()
+        self.music = mixer.music
+        self.music.load('./assets/music/bg_music.mp3')
         self.display = pygame.display
         self.link_list = LinkList()
         self.merge_sort = MergeSort()
         self.My_queue = queue()
         self.player = Player()
-        self.button = Button()
         self.coin = coin
         self.bet_coin = bet_coin
         self.horse_bet = horse_bet
@@ -28,10 +30,12 @@ class Game():
         self.display.set_caption("Horse Racing")
         self.font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 100)
         self.font_btn = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 32)
+        self.font_btn_sound = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 10)
         self.logo_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 72)
         self.font_save = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
         self.custom_font = pygame.font.Font(None, 20)
         self.link_list.append('./assets/bg.png')
+        self.link_list.append('./assets/grey_bg.png')
         self.link_list.append('./assets/final.png')
         self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(1))).convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
@@ -78,7 +82,7 @@ class Game():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
-
+            
             self.order()
             self.score_board()
             self.illutionist()
@@ -116,11 +120,14 @@ class Game():
 
 
 
-    def render_text(self,text, x, y):
-        text_surface = self.font_save.render(text, True, (255, 255, 255))
+    def render_text(self,text, x, y, color=(0, 0, 0)):
+        text_surface = self.font_save.render(text, True, color)
         self.screen.blit(text_surface, (x, y))
 
     def select_save(self):
+        background_image = pygame.image.load("./assets/MENU_BG.png")
+        background_image = pygame.transform.scale(background_image, (800, 700))
+        self.music.stop()
         with open('./data/data.json', 'r') as json_file:
             data = json.load(json_file)
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
@@ -170,44 +177,45 @@ class Game():
                                 current_page = i
                     if self.back.clicked(mouse_pos):
                         self.menu_()
-
-            self.screen.fill((0, 0, 0))
+            self.screen.blit(background_image, (0, 0))
             start_idx = current_page * players_per_page
             end_idx = min((current_page + 1) * players_per_page, num_players)
 
             for i, player in enumerate(players[start_idx:end_idx]):
                 box_y = box_y_start + (i % players_per_page) * box_height
                 player_box = pygame.Rect(box_x, box_y, box_width, box_height)
-                pygame.draw.rect(self.screen, (0, 128, 255), player_box, 2)
-
-                self.render_text(f"SAVE {i + 1 + start_idx}: {player.name}", box_x + 20, box_y + 10)
-                self.render_text(f"Coin: {player.coin}", box_x + 20, box_y + 50)
+                pygame.draw.rect(self.screen, (0, 255, 0), player_box, 2)
+                pygame.draw.rect(self.screen, (0, 0, 0), (box_x+5, box_y+5, box_width-10, box_height-10))
+                self.render_text(f"SAVE {i + 1 + start_idx}: {player.name}", box_x + 20, box_y + 10, (255, 255, 255))
+                self.render_text(f"Coin: {player.coin}", box_x + 20, box_y + 50, (255, 255, 255))
 
 
             for i, button_rect in enumerate(button_rects):
                 pygame.draw.rect(self.screen, (0, 255, 0), button_rect)
                 self.render_text(str(i + 1), button_rect.centerx - 10, button_rect.centery - 10)
 
-            
             self.back.render(self.screen, mouse_pos)
             self.display.flip()
 
 
     def menu_(self):
-        mixer.init()
+        self.player.name = ""
+        self.music.play()
         self.display.set_caption("Main Menu")
-        mixer.music.load('./assets/music/bg_music.mp3')
-        mixer.music.play(-1)
-        self.play_button = Button("NEW GAME", self.font_btn, (400, 300), (52, 78, 91), (0, 0, 0), 280, 80)
-        self.play_continue = Button("Continue", self.font_btn, (400, 400), (52, 78, 91), (0, 0, 0), 280, 80)
-        self.exit = Button("EXIT", self.font_btn, (400, 500), (52, 78, 91), (0, 0, 0), 280, 80)
-        background_image = pygame.image.load("./assets/MENU_BG.png") 
+
+        play_button = Button("NEW GAME", self.font_btn, (400, 300), (52, 78, 91), (0, 0, 0), 280, 80)
+        play_continue = Button("Continue", self.font_btn, (400, 400), (52, 78, 91), (0, 0, 0), 280, 80)
+        exit = Button("EXIT", self.font_btn, (400, 500), (52, 78, 91), (0, 0, 0), 280, 80)
+        stop_music_button = Button("ON", self.font_btn_sound, (50, 650), (52, 78, 91), (0, 0, 0), 50, 50)
+        music_button = Button("OFF", self.font_btn_sound, (50, 650), (52, 78, 91), (0, 0, 0), 50, 50)
+        background_image = pygame.image.load("./assets/MENU_BG.png")
         background_image = pygame.transform.scale(background_image, (800, 700))
 
         logo_image = pygame.image.load("./assets/logo.png")
         logo_image = pygame.transform.scale(logo_image, (800, 700))
         logo_image = pygame.transform.scale(logo_image, (500, 150))
         logo_y = (self.screen.get_height() - logo_image.get_height()) // 2 - 100
+        music_stop = False 
 
         while True:
             self.screen.blit(background_image, (0, 0))
@@ -217,12 +225,21 @@ class Game():
                 if event.type == pygame.QUIT:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.play_button.clicked(mouse_pos):
+                    if play_button.clicked(mouse_pos):
                         self.player.create_player_name()
-                    if self.play_continue.clicked(mouse_pos):
+                    if play_continue.clicked(mouse_pos):
                         self.select_save()
-                    if self.exit.clicked(mouse_pos):
+                    if exit.clicked(mouse_pos):
                         quit()
+                    if stop_music_button.clicked(mouse_pos):
+                        if (not music_stop):
+                            stop_music_button  = music_button 
+                            self.music.stop()
+                            music_stop = True
+                        elif (music_stop):
+                            stop_music_button = Button("ON", self.font_btn_sound, (50, 650), (52, 78, 91), (0, 0, 0), 50, 50)
+                            self.music.play()
+                            music_stop = False
 
             logo_y -= 0.4
             if logo_y < 50:
@@ -230,9 +247,10 @@ class Game():
             logo_x = (self.screen.get_width() - logo_image.get_width()) // 2
             self.screen.blit(logo_image, (logo_x, logo_y))
 
-            self.play_button.render(self.screen, mouse_pos)
-            self.play_continue.render(self.screen, mouse_pos)
-            self.exit.render(self.screen, mouse_pos)
+            play_button.render(self.screen, mouse_pos)
+            play_continue.render(self.screen, mouse_pos)
+            exit.render(self.screen, mouse_pos)
+            stop_music_button.render(self.screen, mouse_pos)
 
             self.display.flip()
 
@@ -287,6 +305,7 @@ class Game():
         self.display.set_caption("Choice To Play")
         self.player.name = name
         self.coin = coin
+        self.music.play()
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
         self.Bet_play = Button("BET", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
@@ -349,7 +368,7 @@ class Game():
             "horser": self.horser.round_
         }
         if max(self.round_.values()) >= 4 :
-                self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(2))).convert()
+                self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(3))).convert()
                 self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
                 if self.round_['horse'] >= 5 and self.round_['horse'] == max(self.round_.values()):
                     self.horse.stop()
@@ -371,7 +390,9 @@ class Game():
                     self.horser.stop()
                     if "Horse Red" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse Red")
-
+        elif(max(self.round_.values()) >= 1):
+            self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(2))).convert()
+            self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
 
 
 

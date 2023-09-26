@@ -8,67 +8,65 @@ class Player:
         self.name = name
         self.coin = coin
 
-    def display_name(self):
-        return self.name
-    
-    def display_coin(self):
-        return self.coin
-
     def create_player_name(self):
         display = pygame.display
+        background_image = pygame.image.load("./assets/MENU_BG.png")
+
+        background_image = pygame.transform.scale(background_image, (800, 700))
         back_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
         screen = pygame.display.set_mode((800, 600))
         display.set_caption("Create Player")
         back = Button("<<<", back_font, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         game_instance = game.Game() 
         input_rect = pygame.Rect(300, 300, 200, 40)
-        color_inactive = pygame.Color('lightskyblue3')
-        color_active = pygame.Color('dodgerblue2')
-        color = color_inactive
         font = pygame.font.Font(None, 36)
         active = False
-        
-        text = font.render("NAME", True, (255, 255, 255))
+        pull = False
+
+        text = font.render("NAME", True, (0, 0, 0))
         text_rect = text.get_rect(center=(400, 200))
+        create_player_button = Button("Create Player", font, (400, 400), (52, 78, 91), (100, 120, 140), 200, 50)
 
         while True:
             mouse_pos = pygame.mouse.get_pos()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
 
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if input_rect.collidepoint(event.pos):
-                        active = not active
+                        active = True
+                    elif create_player_button.clicked(mouse_pos):  
+                        pull = True
                     elif back.clicked(mouse_pos):
                         game_instance.menu_()
-                    else:
-                        active = False
-                    color = color_active if active else color_inactive
-            
 
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN or pull == True:
                     if active:
-                        if event.key == pygame.K_RETURN:
-                            if len(self.name) <= 8 and self.name.strip() != "":
-                                self.coin = 100
-                                self.auto_save(self.name,self.coin)
-                                game_instance.Choice_bet_play(self.name,self.coin)
-                            else:
-                                player_name = ""
+                        if len(self.name) <= 8 and self.name.strip() != "" and create_player_button.clicked(mouse_pos):
+                            self.coin = 100
+                            self.auto_save(self.name,self.coin)
+                            game_instance.Choice_bet_play(self.name,self.coin)
                         elif event.key == pygame.K_BACKSPACE:
-                            player_name = player_name[:-1]
+                            self.name = self.name[:-1]
                         elif len(self.name) < 8:
+                            if event.key == pygame.K_SPACE:
+                                continue
                             self.name += event.unicode
-            screen.fill((0, 0, 0))
-            pygame.draw.rect(screen, color, input_rect, 2)
+                        else:
+                            pass
+
+            screen.blit(background_image, (0, 0))
             
             txt_surface = font.render(self.name, True, (255, 255, 255))
             width = max(200, txt_surface.get_width()+10)
             input_rect.w = width
+            pygame.draw.rect(screen, (0, 0, 0), input_rect)
             screen.blit(txt_surface, (input_rect.x+5, input_rect.y+5))
+
             screen.blit(text, text_rect)
+            create_player_button.render(screen, mouse_pos)
             back.render(screen, mouse_pos)
 
             display.flip()

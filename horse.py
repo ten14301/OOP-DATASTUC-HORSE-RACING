@@ -32,11 +32,11 @@ class Horse(pygame.sprite.Sprite):
             self.image = self.sprites[int(self.current_sprite)]
 
     @property
-    def position(self):
+    def position(self) -> int:
         return int(self.rect.x)
     
     @property
-    def round_(self):
+    def round_(self) -> int:
         return int(self.round)
 
 
