@@ -2,17 +2,17 @@ import pygame
 import time
 import json
 import easygui
-from button import Button
+from button import Button,Select_button,TypeSelect_button,AdditionalSelect_button
 from player import Player
 from singlely_Link_list import LinkList
 from merg_sort import MergeSort
-from My_queue import queue
+from My_queue import queue,typequeue
 from pygame import mixer
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, Player_Horse_red
 
 
 class Game:
-    def __init__(self,coin=0,bet_coin=0,horse_bet="",selected_players=""):
+    def __init__(self,coin=0,bet_coin=0,horse_bet="",selected_players="", type_bet = ""):
         pygame.init()
         mixer.init()
         self.music = mixer.music
@@ -21,10 +21,12 @@ class Game:
         self.link_list = LinkList()
         self.merge_sort = MergeSort()
         self.My_queue = queue()
+        self.bet_queue = typequeue()
         self.player = Player()
+        self.horser = Player_Horse_red(0, 375)
         self.coin = coin
+        self.type_bet = type_bet
         self.bet_coin = bet_coin
-        self.horse_bet = horse_bet
         self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
         self.display.set_caption("Horse Racing")
@@ -105,16 +107,17 @@ class Game:
                     text_surface = self.custom_font.render(text, True, (255, 255, 255))
                     self.screen.blit(text_surface, (0, y_positions[i]))
                 print(self.horse.round_, self.horseb.round_,self.horsew.round_,self.horseg.round_,self.horser.round_)
-                self.round_['horse'] = 0
-                self.round_['horseb'] = 0
-                self.round_['horseg'] = 0
-                self.round_['horsew'] = 0
-                self.round_['horser'] = 0
+
                 run = False
 
             self.display.flip()
             self.clock.tick(60)
         go_mus.stop()
+        self.round_['horse'] = 0
+        self.round_['horseb'] = 0
+        self.round_['horseg'] = 0
+        self.round_['horsew'] = 0
+        self.round_['horser'] = 0
         self.pay_out()
 
     def run_manual(self):
@@ -123,15 +126,11 @@ class Game:
         self.bg_image = pygame.image.load('./assets/bg.png').convert()
         self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
         self.moving_sprites = pygame.sprite.Group()
-        self.start_position_horse_manual()
         self.moving_sprites.add(self.horser)
         go_mus = mixer.music
         go_mus.load('./assets/music/go.wav')
-
-        self.topic_dashboard = "Horse Racing Score-Board"
         go_mus.play()
         for i in range(3, 0, -1):
-
             # ล้างหน้าจอและเปลี่ยนพื้นหลัง
             self.screen.fill((255, 255, 255))
             self.screen.blit(self.bg_image, (0, 0))
@@ -142,6 +141,7 @@ class Game:
             self.screen.blit(text, text_rect)
             self.display.flip()
             time.sleep(0.5)
+        
 
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.bg_image, (0, 0))
@@ -155,47 +155,34 @@ class Game:
         go_mus.load('./assets/music/bg_music.mp3')
         go_mus.play()
         run = True
+
         while run:
             keys = pygame.key.get_pressed()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
-                if keys[pygame.K_UP]:
-                    self.horser.animate()
-            
-            self.order()
-            self.score_board()
-            self.illutionist()
-            
+                is_up_pressed = False
+            if keys[pygame.K_UP] and not is_up_pressed and self.horser.round_ < 5:
+                self.horser.animate()
+                is_up_pressed = True
+            else:
+
+                self.horser.wait()
+                
             self.screen.blit(self.bg_image, (0, 0))
-            self.moving_sprites.draw(self.screen)
             self.moving_sprites.update(0.2)
-            text_dashboard_topic = self.custom_font.render(self.topic_dashboard, True, (255, 255, 255))
-            self.screen.blit(text_dashboard_topic, (0, 0))
-            if self.My_queue.size() < 5:
-                y_positions = [10, 20, 30, 40, 50]
-                for i, text in enumerate(self.dashboard_text):
-                    text_surface = self.custom_font.render(text, True, (255, 255, 255))
-                    self.screen.blit(text_surface, (0, y_positions[i]))
-            elif self.My_queue.size() >= 5:
-                print(self.My_queue.size())
-                print(self.My_queue.items)
-                y_positions = [10, 20, 30, 40, 50]
-                for i, text in enumerate(self.My_queue.items):
-                    text_surface = self.custom_font.render(text, True, (255, 255, 255))
-                    self.screen.blit(text_surface, (0, y_positions[i]))
-                print(self.horse.round_, self.horseb.round_,self.horsew.round_,self.horseg.round_,self.horser.round_)
-                self.round_['horse'] = 0
-                self.round_['horseb'] = 0
-                self.round_['horseg'] = 0
-                self.round_['horsew'] = 0
-                self.round_['horser'] = 0
+            self.horser.update_manual(0.2)
+    
+            self.moving_sprites.draw(self.screen)
+
+            if self.horser.round_ >= 5:
                 run = False
 
             self.display.flip()
             self.clock.tick(60)
         go_mus.stop()
-        self.pay_out()
+        self.pay_out_manual()
+        
 
 
 
@@ -336,29 +323,6 @@ class Game:
 
             self.display.flip()
 
-    def start_position_horse_manual(self):
-        self.position = [375, 430, 485, 540, 595]
-        n = len(self.position)
-        random_numbers = [hash(obj + time.time()) for obj in self.position]
-        for i in range(n):
-            j = random_numbers[i] % (n - 1)
-            self.position[i], self.position[j] = self.position[j], self.position[i]
-        self.horse = Horse_brown(0, self.position[0])
-        self.horseb = Horse_black(0, self.position[1])
-        self.horsew = Horse_white(0, self.position[2])
-        self.horseg = Horse_grey(0, self.position[3])
-        self.horser = Player_Horse_red(0, self.position[4])
-        self.moving_sprites.add(self.horse)
-        self.moving_sprites.add(self.horseb)
-        self.moving_sprites.add(self.horsew)
-        self.moving_sprites.add(self.horseg)
-
-        self.horse.animate()
-        self.horseb.animate()
-        self.horsew.animate()
-        self.horseg.animate()
-
-
 
     def start_position_horse(self):
         self.position = [375, 430, 485, 540, 595]
@@ -383,27 +347,18 @@ class Game:
         self.horseg.animate()
         self.horser.animate()
 
+
     def illutionist(self):
-        if self.round_['horse'] < max(self.round_.values()) and self.round_['horse'] != 4:
-            self.horse.image.set_alpha(0)
-        else:
-            self.horse.image.set_alpha(255)
-        if self.round_['horseb'] < max(self.round_.values()) and self.round_['horseb'] != 4:
-            self.horseb.image.set_alpha(0)
-        else:
-            self.horseb.image.set_alpha(255)
-        if self.round_['horseg'] < max(self.round_.values()) and self.round_['horseg'] != 4:
-            self.horseg.image.set_alpha(0)
-        else:
-            self.horseg.image.set_alpha(255)
-        if self.round_['horsew'] < max(self.round_.values()) and self.round_['horsew'] != 4:
-            self.horsew.image.set_alpha(0)
-        else:
-            self.horsew.image.set_alpha(255)
-        if self.round_['horser'] < max(self.round_.values()) and self.round_['horser'] != 4:
-            self.horser.image.set_alpha(0)
-        else:
-            self.horser.image.set_alpha(255)
+        horse_images = [self.horse.image, self.horseb.image, self.horseg.image, self.horsew.image, self.horser.image]
+        
+        max_round_value = max(self.round_.values())
+        
+        for horse_name, horse_image in zip(['horse', 'horseb', 'horseg', 'horsew', 'horser'], horse_images):
+            if self.round_[horse_name] < max_round_value and self.round_[horse_name] != 4:
+                horse_image.set_alpha(0)
+            else:
+                horse_image.set_alpha(255)
+
 
     def Choice_bet_play(self,name,coin):
         self.display.set_caption("Choice To Play")
@@ -422,7 +377,7 @@ class Game:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.Bet_play.clicked(mouse_pos):
-                       self.Choice_bet(name,coin)
+                       self.bet_(name,coin)
                     if self.Play_as_hourse.clicked(mouse_pos) :
                        self.run_manual()
                     if self.back.clicked(mouse_pos) :
@@ -430,38 +385,9 @@ class Game:
             self.screen.blit(player_info_surface, (10, 670))
             self.Bet_play.render(self.screen, mouse_pos)
             self.Play_as_hourse.render(self.screen, mouse_pos)
-            self.screen.blit(player_info_surface, (10, 670))
             self.back.render(self.screen, mouse_pos)
             self.display.flip()
 
-    def Choice_bet(self,name,coin):
-        self.display.set_caption("BET")
-        self.player.name = name
-        self.coin = coin
-        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
-        self.win = Button("BET WIN", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.place_ = Button("BET Place", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
-        while True:
-            self.screen.fill((52, 78, 91))
-            mouse_pos = pygame.mouse.get_pos()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    quit()  
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.win.clicked(mouse_pos):
-                       self.bet_WIN()
-
-                    if self.place_.clicked(mouse_pos) :
-                       self.bet_WIN()
-                    if self.back.clicked(mouse_pos) :
-                       self.Choice_bet_play(name,coin)
-            self.screen.blit(player_info_surface, (10, 670))
-            self.win.render(self.screen, mouse_pos)
-            self.place_.render(self.screen, mouse_pos)
-            self.screen.blit(player_info_surface, (10, 670))
-            self.back.render(self.screen, mouse_pos)
-            self.display.flip()
             
     def order(self):
         self.round_= {
@@ -474,23 +400,23 @@ class Game:
         if max(self.round_.values()) >= 4 :
                 self.bg_image = pygame.image.load("".join(self.link_list.get_link_list(3))).convert()
                 self.bg_image = pygame.transform.scale(self.bg_image, (800, 700))
-                if self.round_['horse'] >= 5 and self.round_['horse'] == max(self.round_.values()):
+                if self.round_['horse'] == 5 and self.round_['horse'] == max(self.round_.values()):
                     self.horse.stop()
                     if "Horse Brown" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse Brown")
-                if self.round_['horseb'] >= 5 and self.round_['horseb'] == max(self.round_.values()):
+                if self.round_['horseb'] == 5 and self.round_['horseb'] == max(self.round_.values()):
                     self.horseb.stop()
                     if "Horse Black" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse Black")
-                if self.round_['horseg'] >= 5 and self.round_['horseg'] == max(self.round_.values()):
+                if self.round_['horseg'] == 5 and self.round_['horseg'] == max(self.round_.values()):
                     self.horseg.stop()
                     if "Horse Grey" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse Grey")
-                if self.round_['horsew'] >= 5 and self.round_['horsew'] == max(self.round_.values()):
+                if self.round_['horsew'] == 5 and self.round_['horsew'] == max(self.round_.values()):
                     self.horsew.stop()
                     if "Horse White" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse White")
-                if self.round_['horser'] >= 5 and self.round_['horser'] == max(self.round_.values()) :
+                if self.round_['horser'] == 5 and self.round_['horser'] == max(self.round_.values()) :
                     self.horser.stop()
                     if "Horse Red" not in self.My_queue.items:
                         self.My_queue.enqueue("Horse Red")
@@ -517,103 +443,284 @@ class Game:
         self.dashboard_text = []
         sorted_horses = self.sort_horses()
         for horse,round_ in sorted_horses:
-            if round_ == 5:
+            if round_ >= 5:
                 self.dashboard_text.append(f"{horse} Round: finish")
             else:
                 self.dashboard_text.append(f"{horse} Round: {round_}")
     
                 
 
-    def bet_WIN(self,):
-        self.display.set_caption("BET WIN")
-        player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.coin}", True, (255, 255, 255))
-        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        self.HBr = Button("Horse Brown", self.font_btn, (400, 150), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HB = Button("Horse Black", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HW = Button("Horse White", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HR = Button("Horse Red", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.HGR = Button("Horse Grey", self.font_btn, (400, 550), (52, 78, 91), (100, 120, 140), 350, 80)
-        while True:
-            self.screen.fill((52, 78, 91))
-            mouse_pos = pygame.mouse.get_pos()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    quit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.HBr.clicked(mouse_pos):
-                        self.horse_bet = "Horse Brown"
-                        self.how_much()
-                    if self.HB.clicked(mouse_pos):
-                        self.horse_bet = "Horse Black"
-                        self.how_much()
-                    if self.HW.clicked(mouse_pos):
-                        self.horse_bet = "Horse White"
-                        self.how_much()
-                    if self.HR.clicked(mouse_pos):
-                        self.horse_bet = "Horse Red"
-                        self.how_much()
-                    if self.HGR.clicked(mouse_pos):
-                        self.horse_bet = "Horse Grey"
-                        self.how_much()
-                    elif self.back.clicked(mouse_pos):
-                        self.Choice_bet(self.player.name,self.coin)
-            self.HBr.render(self.screen, mouse_pos)
-            self.HB.render(self.screen, mouse_pos)
-            self.HW.render(self.screen, mouse_pos)
-            self.HR.render(self.screen, mouse_pos)
-            self.HGR.render(self.screen, mouse_pos)
-            self.back.render(self.screen, mouse_pos)
-            self.screen.blit(player_info_surface, (10, 670))
-            self.display.flip()
+    def bet_(self,playername,coin):
+        button_width = 100
+        button_height = 50
+        button_spacing = 20
+        button_x_start = 200  
+        button_y_start = 110
+        money = True
+        back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        notenough = True
+        BLACK = (0, 0, 0)
+        BROWN = (102,51,0)
+        GREY = (128,128,128)
+        RED = (255, 0, 0)
+        player_info_surface = self.font_save.render(f"Player: {playername} Coin: {coin}", True, BLACK)
+        buttons = []
+        name_horse = ["Horse Brown", "Horse Black", "Horse White", "Horse Grey", "Horse Red"]
+        for i, name in enumerate(name_horse):
+            button = Select_button(
+                text=f"{name}",
+                font=self.font_save,
+                position=(
+                    button_x_start,
+                    button_y_start + (100 + button_spacing) * i,
+                ),
+                color_idle=BROWN,
+                color_hover=RED,
+                width=300,
+                height=80,
+            )
+            buttons.append(button)
 
-    def how_much(self):
-        self.display.set_caption("BET")
-        self.H = Button("100", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.TH = Button("1000", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.TTH = Button("10000", self.font_btn, (400, 450), (52, 78, 91), (100, 120, 140), 350, 80)
-        self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.coin}", True, (255, 255, 255))
-        while True:
-            self.screen.fill((52, 78, 91))
+        image_path_brown = "./assets/brown/move1.png"
+        button_image_brown = pygame.image.load(image_path_brown)
+
+        image_path_black = "./assets/black/move-black1.png"
+        button_image_black = pygame.image.load(image_path_black)
+
+        image_path_white = "./assets/white/move-white1.png"
+        button_image_white = pygame.image.load(image_path_white)
+
+        image_path_grey = "./assets/grey/move-grey1.png"
+        button_image_grey = pygame.image.load(image_path_grey)
+
+        image_path_red = "./assets/red/move-red1.png"
+        button_image_red = pygame.image.load(image_path_red)
+
+        button_images = {}
+
+        image_positions = {}
+
+        for i, button in enumerate(buttons):
+            if button.text == "Horse Brown":
+                button_images[button.text] = button_image_brown
+            elif button.text == "Horse Black":
+                button_images[button.text] = button_image_black
+            elif button.text == "Horse White":
+                button_images[button.text] = button_image_white
+            elif button.text == "Horse Grey":
+                button_images[button.text] = button_image_grey
+            elif button.text == "Horse Red":
+                button_images[button.text] = button_image_red
+            
+            image_positions[button.text] = (button_x_start - 170, (button_y_start - 50) + (100 + button_spacing) * i)
+
+
+        additional_buttons = []
+        numbers = [100, 1000, 10000]
+        for i, number in enumerate(numbers):
+            button = AdditionalSelect_button(
+                text=f"{number}",
+                font=self.font_save,
+                position=(
+                    button_x_start + 400,
+                    button_y_start+ 200 + (button_height + button_spacing) * i,
+                ),
+                color_idle=BLACK,
+                color_hover=RED,
+                width=button_width,
+                height=button_height,
+            )
+            additional_buttons.append(button)
+
+
+        Type_buttons = []
+        Types = ["Bet Win", "Bet Place"]
+        for i, type in enumerate(Types):
+            button = TypeSelect_button(
+                text=f"{type}",
+                font=self.font_save,
+                position=(
+                    button_x_start + 400,
+                    button_y_start + (button_height + button_spacing) * i,
+                ),
+                color_idle=BLACK,
+                color_hover=RED,
+                width=button_width+50,
+                height=button_height,
+            )
+            Type_buttons.append(button)
+
+        submit_button = Select_button(
+            text="START RACE!",
+            font=self.font_save,
+            position=(button_x_start+400, 550),
+            color_idle=BLACK,
+            color_hover=RED,
+            width=button_width + 100,
+            height=button_height,
+        )
+
+        running = True
+        selected_buttons = [] 
+        selected_additional_buttons = [] 
+        selected_type_buttons = []
+
+        while running:
             mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.H.clicked(mouse_pos):
-                        self.bet_coin = 100
-                        if self.coin < self.bet_coin:
-                            easygui.msgbox("Not Enough Money", "Alert")
-                        else:
-                            self.run()
-                    if self.TH.clicked(mouse_pos):
-                        self.bet_coin = 1000
-                        if self.coin < self.bet_coin:
-                            easygui.msgbox("Not Enough Money", "Alert")
-                        else:
-                            self.run()
-                    if self.TTH.clicked(mouse_pos):
-                        self.bet_coin = 10000
-                        if self.coin < self.bet_coin:
-                           easygui.msgbox("Not Enough Money", "Alert")
-                        else:
-                            self.run()
-                    if self.back.clicked(mouse_pos):
-                        self.Choice_bet(self.player.name,self.coin)
-            self.H.render(self.screen, mouse_pos)
-            self.TH.render(self.screen, mouse_pos)
-            self.TTH.render(self.screen, mouse_pos)
-            self.back.render(self.screen, mouse_pos)
+                    if event.button == 1:
+                        for button in Type_buttons:
+                            if button.clicked(event.pos):
+                                if len(selected_type_buttons) < 1 and money or button.selected and money:
+                                    button.selected = not button.selected
+                                    if button.selected:
+                                        selected_type_buttons.append(button)
+                                    else:
+                                        selected_type_buttons.remove(button)
+                        selected_texts = [button.text for button in selected_type_buttons]
+
+  
+                        for button in buttons:
+                            if button.clicked(event.pos):
+                                if ("".join(selected_texts) == "Bet Place"):
+                                    if len(selected_buttons) < 3 and money or button.selected and money:
+                                        button.selected = not button.selected
+                                        if button.selected:
+                                            selected_buttons.append(button)
+                                        else:
+                                            selected_buttons.remove(button)
+                                elif ("".join(selected_texts) == "Bet Win"):
+                                    if len(selected_buttons) < 1 and money or button.selected and money:
+                                        button.selected = not button.selected
+                                        if button.selected:
+                                            selected_buttons.append(button)
+                                        else:
+                                            selected_buttons.remove(button)
+                                elif (("".join(selected_texts) != "Bet Win") and money or ("".join(selected_texts) == "Bet Place") and money):
+                                    easygui.msgbox("กรุณาเลือกประเภทก่อน", "Alert")
+
+                        for button in additional_buttons:
+                            if button.clicked(event.pos):
+                                if len(selected_additional_buttons) < 1 or button.selected and coin >= 100:
+                                    button.selected = not button.selected
+                                    if button.selected:
+                                        selected_additional_buttons.append(button)
+                                        selected_money = [button.text for button in selected_additional_buttons]
+                                        selected_money_value = int("".join(selected_money))
+                                        if coin >= selected_money_value:
+                                            money = True
+                                            notenough = True
+                                        elif coin < selected_money_value:
+                                            money = False                                                        
+                                    else:
+                                        selected_additional_buttons.remove(button)
+                                    print(money)
+
+                        if submit_button.clicked(event.pos):
+                            idx = 1
+                            if (notenough):
+                                if (("".join(selected_texts)) == "Bet Place" and len(selected_additional_buttons) == 1 and len(selected_buttons) == 3  ):
+                                    for selected_button in selected_buttons[:3]:
+                                        print(f"{idx}. {selected_button.text}")
+                                        self.bet_queue.enqueue(selected_button.text)
+                                        idx += 1
+                                    for money_button in selected_additional_buttons[:1]:
+                                        print(f"{idx}. {money_button.text}")
+                                        self.bet_coin = int(money_button.text)
+                                        idx += 1
+                                    for type_button in selected_type_buttons[:1]:
+                                        print(f"{idx}. {type_button.text}")
+                                        self.bet_type = type_button.text
+                                        idx += 1
+                                elif (("".join(selected_texts))== "Bet Win" and len(selected_additional_buttons) == 1 and len(selected_buttons) == 1):
+                                    for selected_button in selected_buttons[:1]:
+                                        print(f"{idx}. {selected_button.text}")
+                                        self.bet_queue.enqueue(selected_button.text)
+                                        idx += 1
+                                    for money_button in selected_additional_buttons[:1]:
+                                        print(f"{idx}. {money_button.text}")
+                                        self.bet_coin = int(money_button.text)
+                                        idx += 1
+                                    for type_button in selected_type_buttons[:1]:
+                                        print(f"{idx}. {type_button.text}")
+                                        self.bet_type = type_button.text
+                                        idx += 1
+                                else:
+                                    easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
+                                self.run()                                                                
+                            elif (not notenough):
+                                easygui.msgbox("ฮั่นแนนนนนนนนนน่.....", "Alert")  
+                        elif (submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 3 and notenough or submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 1 and notenough):
+                            easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
+                        elif (not money):
+                             easygui.msgbox("ไปหาเงินมาก่อนนะจ๊ะ.....", "Alert")
+                             money = True
+                             notenough = False
+                    if back.clicked(mouse_pos):
+                        self.Choice_bet_play(playername,coin)
+
+            self.screen.fill(GREY)
             self.screen.blit(player_info_surface, (10, 670))
-            self.display.flip()
+
+            for button in buttons:
+                button.render_change(self.screen, pygame.mouse.get_pos())
+
+            for button in buttons:
+                image = button_images.get(button.text)
+                position = image_positions.get(button.text)
+                if image and position:
+                    self.screen.blit(image, position)
+
+            for button in additional_buttons + [submit_button] + Type_buttons:
+                button.render_change(self.screen, pygame.mouse.get_pos())
+            back.render(self.screen, mouse_pos)
+            pygame.display.flip()
+
 
     def pay_out(self):
+        check = True
+        if self.bet_type == "Bet Win":
+            if (not self.bet_queue.is_empty()):
+                dequeue = self.My_queue.dequeue()
+                dequeue_bet = self.bet_queue.dequeue()
+                print(dequeue)
+                print(dequeue_bet)
+                if dequeue == dequeue_bet:
+                    self.coin += self.bet_coin * 0.5
+                else:
+                    self.coin -= self.bet_coin
+            self.My_queue.clear()
+            self.bet_queue.clear()
+            self.player.auto_save(self.player.name,self.coin)
+            self.bet_(self.player.name,self.coin)
+        elif self.bet_type == "Bet Place":
+            for i in range(3):
+                dequeue = self.My_queue.dequeue()
+                dequeue_bet = self.bet_queue.dequeue()
+                if (dequeue_bet == dequeue):
+                    check = True
+                else:
+                    check = False
+            if (check == True):
+                self.coin += self.bet_coin * 3
+            else:
+                self.coin -= self.bet_coin
+            self.player.auto_save(self.player.name,self.coin)
+            self.bet_(self.player.name,self.coin)
+        print(self.coin)         
+
+
+
+    def pay_out_manual(self):
         dequeue = self.My_queue.dequeue()
         print(dequeue,self.horse_bet,self.bet_coin,self.coin)
-        if dequeue == self.horse_bet:
-            self.coin += self.bet_coin * 2
+        if dequeue == "Horse Red":
+            self.coin +=  100
         else:
-            self.coin -= self.bet_coin
+            self.coin += 10
         if (not self.My_queue.is_empty()):
             for i in range(self.My_queue.size()):
                 self.My_queue.dequeue()

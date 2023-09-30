@@ -1,10 +1,6 @@
 {
     "AUTO": {
         "name": "test",
-        "coin": 100
-    },
-    "SAVE 2": {
-        "name": "Johny",
-        "coin": 2000
+        "coin": 50.0
     }
 }

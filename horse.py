@@ -14,6 +14,15 @@ class Horse(pygame.sprite.Sprite):
         self.is_animating = True
     def stop(self):
         self.kill()
+    def wait(self):
+        self.is_animating = False
+    @property
+    def position(self) -> int:
+        return int(self.rect.x)
+    
+    @property
+    def round_(self) -> int:
+        return int(self.round)
 
     #ขยับและกำหนดค่าความเร็วของแต่ละเฟรมบนตัวม้า
     def update(self, speed):
@@ -22,38 +31,17 @@ class Horse(pygame.sprite.Sprite):
             time_tick = pygame.time.get_ticks()
             self.rect.x +=  ((time_tick // 1000) + id(self)) % 5 + 3
             if self.rect.x >= 800:
-                self.rect.x = -self.rect.width
                 self.round += 1
+                self.rect.x = -self.rect.width
             if self.round > 5:
                 self.round = 0
 
             if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
             self.image = self.sprites[int(self.current_sprite)]
+            
 
-    #ขยับและกำหนดค่าความเร็วของแต่ละเฟรมบนตัวม้า
-    def update_manual(self, speed):
-        if self.is_animating :
-            self.current_sprite += speed
-            time_tick = pygame.time.get_ticks()
-            self.rect.x +=  ((time_tick // 1000) + id(self)) % 5 + 3
-            if self.rect.x >= 800:
-                self.rect.x = -self.rect.width
-                self.round += 1
-            if self.round > 5:
-                self.round = 0
 
-            if self.current_sprite >= len(self.sprites):
-                self.current_sprite = 0
-            self.image = self.sprites[int(self.current_sprite)]
-
-    @property
-    def position(self) -> int:
-        return int(self.rect.x)
-    
-    @property
-    def round_(self) -> int:
-        return int(self.round)
 
 
 class Horse_brown(Horse):
@@ -128,3 +116,18 @@ class Player_Horse_red(Horse):
         self.sprites.append(pygame.image.load('./assets/red/move-red5.png'))
         self.image = self.sprites[self.current_sprite]
         self.rect = pygame.Rect(pos_x, pos_y, 20, 20)
+
+    def update_manual(self, speed):
+        if self.is_animating :
+            self.current_sprite += speed
+            time_tick = pygame.time.get_ticks()
+            self.rect.x +=  ((time_tick // 1000) + id(self)) % 10 
+            if self.rect.x >= 800:
+                self.round += 1
+                self.rect.x = -self.rect.width
+            if self.round > 5:
+                self.round = 0
+
+            if self.current_sprite >= len(self.sprites):
+                self.current_sprite = 0
+            self.image = self.sprites[int(self.current_sprite)]

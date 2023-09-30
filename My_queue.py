@@ -16,5 +16,12 @@ class queue:
 
     def size(self) -> int:
         return len(self.items)
+    
+    def clear(self):
+        while not self.is_empty():
+            self.dequeue()
+class typequeue(queue):
+    def __init__(self):
+        super().__init__() 
 
 
