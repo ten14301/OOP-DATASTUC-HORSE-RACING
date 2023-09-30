@@ -366,11 +366,11 @@ class Game:
         self.coin = coin
         self.music.stop()
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (255, 255, 255))
+        player_info_surface = self.font_save.render(f"Player: {name} Coin: {coin}", True, (0, 0, 0))
         self.Bet_play = Button("BET", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.Play_as_hourse = Button("Play", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         while True:
-            self.screen.fill((52, 78, 91))
+            self.screen.fill((220,220,220))
             mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
