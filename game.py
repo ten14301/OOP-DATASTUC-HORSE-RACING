@@ -461,7 +461,7 @@ class Game:
         notenough = True
         BLACK = (0, 0, 0)
         BROWN = (102,51,0)
-        GREY = (128,128,128)
+        GREY = (220,220,220)
         RED = (255, 0, 0)
         player_info_surface = self.font_save.render(f"Player: {playername} Coin: {coin}", True, BLACK)
         buttons = []
@@ -708,6 +708,8 @@ class Game:
                 self.coin += self.bet_coin * 3
             else:
                 self.coin -= self.bet_coin
+            self.My_queue.clear()
+            self.bet_queue.clear()
             self.player.auto_save(self.player.name,self.coin)
             self.bet_(self.player.name,self.coin)
         print(self.coin)         
