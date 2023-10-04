@@ -289,7 +289,7 @@ class Game:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if play_button.clicked(mouse_pos):
-                        self.player.create_player_name()
+                        self.create_player_name()
                     if play_continue.clicked(mouse_pos):
                         self.select_save()
                     if exit.clicked(mouse_pos):
@@ -361,7 +361,6 @@ class Game:
 
             background_image = pygame.transform.scale(background_image, (800, 700))
             back_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
-            screen = pygame.display.set_mode((800, 600))
             display.set_caption("Create Player")
             back = Button("<<<", back_font, (30, 50), (52, 78, 91), (100, 120, 140), 50, 50)
             input_rect = pygame.Rect(300, 300, 200, 40)
@@ -391,6 +390,8 @@ class Game:
                     if event.type == pygame.KEYDOWN or pull == True:
                         if active:
                             if len(self.name) <= 8 and self.name.strip() != "" and create_player_button.clicked(mouse_pos):
+                                self.player.update_name(self.name)
+                                self.player.update_coin(self.coin)
                                 self.player.auto_save()
                                 self.Choice_bet_play()
                             elif event.key == pygame.K_BACKSPACE:
@@ -402,17 +403,17 @@ class Game:
                             else:
                                 pass
 
-                screen.blit(background_image, (0, 0))
+                self.screen.blit(background_image, (0, 0))
                 
                 txt_surface = font.render(self.name, True, (255, 255, 255))
                 width = max(200, txt_surface.get_width()+10)
                 input_rect.w = width
-                pygame.draw.rect(screen, (0, 0, 0), input_rect)
-                screen.blit(txt_surface, (input_rect.x+5, input_rect.y+5))
+                pygame.draw.rect(self.screen, (0, 0, 0), input_rect)
+                self.screen.blit(txt_surface, (input_rect.x+5, input_rect.y+5))
 
-                screen.blit(text, text_rect)
-                create_player_button.render(screen, mouse_pos)
-                back.render(screen, mouse_pos)
+                self.screen.blit(text, text_rect)
+                create_player_button.render(self.screen, mouse_pos)
+                back.render(self.screen, mouse_pos)
 
                 display.flip()
 
@@ -774,7 +775,7 @@ class Game:
         self.player.update_coin(100)
         self.player.auto_save()
         self.Choice_bet_play()
-        
+
 if __name__ == "__main__":
     game = Game()
     game.menu_()
