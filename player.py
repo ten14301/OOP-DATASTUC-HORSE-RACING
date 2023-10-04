@@ -22,6 +22,8 @@ class Player:
         self.name = name
 
     def create_player_name(self):
+        self.name = ""
+        self.coin = 100
         display = pygame.display
         background_image = pygame.image.load("./assets/MENU_BG.png")
 
@@ -58,15 +60,15 @@ class Player:
                 if event.type == pygame.KEYDOWN or pull == True:
                     if active:
                         if len(self.name) <= 8 and self.name.strip() != "" and create_player_button.clicked(mouse_pos):
-                            self.coin = 100
-                            self.auto_save(self.name,self.coin)
-                            game_instance.Choice_bet_play(self.name,self.coin)
+                            game_instance = game.Game(self.name,self.coin)
+                            self.auto_save()
+                            game_instance.Choice_bet_play()
                         elif event.key == pygame.K_BACKSPACE:
                             self.name = self.name[:-1]
                         elif len(self.name) < 8:
                             if event.key == pygame.K_SPACE:
                                 continue
-                            self.name += event.unicode
+                            self.name += str(event.unicode)
                         else:
                             pass
 

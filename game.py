@@ -12,7 +12,7 @@ from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, 
 
 
 class Game:
-    def __init__(self,bet_coin=0,selected_players="", type_bet = ""):
+    def __init__(self,name=0,coin=0,bet_coin=0,selected_players="", type_bet = ""):
         pygame.init()
         mixer.init()
         self.music = mixer.music
@@ -22,7 +22,7 @@ class Game:
         self.merge_sort = MergeSort()
         self.My_queue = queue()
         self.bet_queue = typequeue()
-        self.player = Player()
+        self.player = Player(name,coin)
         self.horser = Player_Horse_red(0, 375)
         self.type_bet = type_bet
         self.bet_coin = bet_coin
@@ -358,7 +358,7 @@ class Game:
         self.display.set_caption("Choice To Play")
         self.music.stop()
         self.back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
-        player_info_surface = self.font_save.render(f"Player: {self.player.return_name} Coin: {self.player.return_coin}", True, (0, 0, 0))
+        player_info_surface = self.font_save.render(f"Player: {self.player.name} Coin: {self.player.coin}", True, (0, 0, 0))
         self.Bet_play = Button("BET", self.font_btn, (400, 250), (52, 78, 91), (100, 120, 140), 350, 80)
         self.Play_as_hourse = Button("Play", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         while True:
@@ -709,8 +709,8 @@ class Game:
 
 
     def pay_out_manual(self):
-        self.coin +=  100
-        print(self.player.name,self.coin,self.My_queue.size())
-        self.player.auto_save(self.player.name,self.coin)
-        self.Choice_bet_play(self.player.name,self.coin)
+        self.player.update_coin(100)
+        self.player.auto_save()
+        self.Choice_bet_play()
+
 
