@@ -1,4 +1,3 @@
-
 import pygame
 from button import Button
 import game
@@ -8,6 +7,20 @@ class Player:
         self.name = name
         self.coin = coin
 
+    @property
+    def return_name(self):
+        return str(self.name)
+    
+    @property
+    def return_coin(self):
+        return int(self.coin)
+    
+    def update_coin(self,coin):
+        self.coin += coin
+
+    def update_name(self,name):
+        self.name = name
+
     def create_player_name(self):
         display = pygame.display
         background_image = pygame.image.load("./assets/MENU_BG.png")
@@ -16,7 +29,7 @@ class Player:
         back_font = pygame.font.Font('./font/NineteenNinetySeven-11XB.ttf', 18)
         screen = pygame.display.set_mode((800, 600))
         display.set_caption("Create Player")
-        back = Button("<<<", back_font, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        back = Button("<<<", back_font, (30, 50), (52, 78, 91), (100, 120, 140), 50, 50)
         game_instance = game.Game() 
         input_rect = pygame.Rect(300, 300, 200, 40)
         font = pygame.font.Font(None, 36)
@@ -71,11 +84,9 @@ class Player:
 
             display.flip()
 
-    def auto_save(self,player_name, player_coin):
+    def auto_save(self):
     
         file_path = "./data/data.json"
-        self.name = player_name
-        self.coin = player_coin
         # อ่านข้อมูล JSON จากไฟล์
         with open(file_path, "r") as json_file:
             data = json.load(json_file)
