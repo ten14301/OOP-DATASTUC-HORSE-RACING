@@ -15,6 +15,7 @@ class Player:
     def update_coin(self,coin):
         self.coin += coin
 
+    
     def update_name(self,name):
         self.name = name
 

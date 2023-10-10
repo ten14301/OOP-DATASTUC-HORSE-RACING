@@ -24,6 +24,10 @@ class Horse(pygame.sprite.Sprite):
     def round_(self) -> int:
         return int(self.round)
 
+    @round_.setter
+    def round_(self, value: int):
+        self.round = value
+
     #ขยับและกำหนดค่าความเร็วของแต่ละเฟรมบนตัวม้า
     def update(self, speed):
         if self.is_animating :
@@ -40,9 +44,6 @@ class Horse(pygame.sprite.Sprite):
                 self.current_sprite = 0
             self.image = self.sprites[int(self.current_sprite)]
             
-
-
-
 
 class Horse_brown(Horse):
     def __init__(self, pos_x,pos_y):
@@ -121,7 +122,7 @@ class Player_Horse_red(Horse):
         if self.is_animating :
             self.current_sprite += speed
             time_tick = pygame.time.get_ticks()
-            self.rect.x +=  ((time_tick // 1000) + id(self)) % 10 
+            self.rect.x +=  ((time_tick // 1000) + id(self)) % 10
             if self.rect.x >= 800:
                 self.round += 1
                 self.rect.x = -self.rect.width
