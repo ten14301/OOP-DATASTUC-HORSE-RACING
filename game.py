@@ -12,7 +12,7 @@ from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, 
 
 
 class Game:
-    def __init__(self,name="",coin=0,bet_coin=0,selected_players="", type_bet = "",result=""):
+    def __init__(self,name="",coin=0,bet_coin=0,selected_players="", type_bet = "",result="",b_result=""):
         pygame.init()
         mixer.init()
         self.music = mixer.music
@@ -26,6 +26,7 @@ class Game:
         self.horser = Player_Horse_red(0, 375)
         self.type_bet = type_bet
         self.bet_coin = bet_coin
+        self.bet_result = b_result
         self.result_ = result
         self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
@@ -745,7 +746,7 @@ class Game:
         self.OK = Button("OK", self.font_btn, (400, 350), (52, 78, 91), (100, 120, 140), 350, 80)
         self.music.stop()
         result_text = self.font.render(f"{self.result_[0]}", True, (0, 0, 0))
-        money = self.font_btn.render(f"{self.result_[1]} {self.bet_coin}", True, (0, 0, 0))
+        money = self.font_btn.render(f"{self.result_[1]} {self.bet_result}", True, (0, 0, 0))
 
         text_width, text_height = result_text.get_size()
         money_width, money_height = money.get_size()
@@ -794,15 +795,12 @@ class Game:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if OK.clicked(mouse_pos):
-                        self.bet_()
+                        self.Choice_bet_play()
 
             self.screen.blit(result_text, (text_x + 10, 100))
             self.screen.blit(money, (money_x + 10, 500))
             OK.render(self.screen, mouse_pos)
             self.display.flip()
-
-
-    
 
     def pay_out(self):
         check = True
@@ -811,15 +809,15 @@ class Game:
                 dequeue = self.My_queue.dequeue()
                 dequeue_bet = self.bet_queue.dequeue()
                 if dequeue == dequeue_bet:
+                    self.bet_result = self.bet_coin * 0.5
                     self.player.update_coin(self.bet_coin * 0.5)
                     self.result_ = ["WIN", "+"]
                     self.result()
                 elif (dequeue != dequeue_bet):
+                    self.bet_result = (self.bet_coin)
                     self.player.update_coin(-self.bet_coin)
                     self.result_ = ["LOSE", "-"]
                     self.result()
-
-
         elif self.bet_type == "Bet Place":
             for i in range(3):
                 dequeue = self.My_queue.dequeue()
@@ -829,15 +827,15 @@ class Game:
                 else:
                     check = False
             if (check == True):
+                self.bet_result = self.bet_coin * 3
                 self.player.update_coin(self.bet_coin * 3)
             else:
+                self.bet_result = (self.bet_coin)
                 self.player.update_coin(-self.bet_coin)
             self.My_queue.clear()
             self.bet_queue.clear()
             self.player.auto_save()
             self.bet_()       
-
-
 
 if __name__ == "__main__":
     game = Game()

@@ -1,4 +1,3 @@
-
 import pygame
 
 class Horse(pygame.sprite.Sprite):
@@ -12,10 +11,13 @@ class Horse(pygame.sprite.Sprite):
 
     def animate(self):
         self.is_animating = True
+
     def stop(self):
         self.kill()
+
     def wait(self):
         self.is_animating = False
+        
     @property
     def position(self) -> int:
         return int(self.rect.x)
