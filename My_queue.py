@@ -20,6 +20,7 @@ class queue:
     def clear(self):
         while not self.is_empty():
             self.dequeue()
+
 class typequeue(queue):
     def __init__(self):
         super().__init__() 

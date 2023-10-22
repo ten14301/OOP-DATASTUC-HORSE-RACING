@@ -1,6 +1,7 @@
 import pygame
 import time
 import json
+import random
 import easygui
 from button import Button,Select_button,TypeSelect_button,AdditionalSelect_button
 from player import Player
@@ -511,6 +512,28 @@ class Game:
             else:
                 self.dashboard_text.append(f"{horse} Round: {round_}")
 
+    def monte_carlo_horse_racing(self,num_iterations):
+        wins = [0, 0, 0, 0, 0]
+        losses = [0, 0, 0, 0, 0]
+        horses = [Horse_brown(0, 0), Horse_black(0, 0), Horse_white(0, 0), Horse_grey(0, 0), Horse_red(0, 0)]
+
+        for _ in range(num_iterations):
+            # จำลองการแข่งขัน
+            winning_horse_idx = random.randint(0, 4)
+            player_choice_idx = random.randint(0, 4)
+            winning_horse = horses[winning_horse_idx]
+            player_choice = horses[player_choice_idx]
+
+            if player_choice_idx == winning_horse_idx:
+                wins[player_choice_idx] += 1
+            else:
+                losses[player_choice_idx] += 1
+
+        win_rates = [wins[i] / num_iterations for i in range(5)]
+        loss_rates = [losses[i] / num_iterations for i in range(5)]
+
+        return win_rates, loss_rates
+    
     def bet_(self):
         self.screen.fill((0,0,0))
         button_width = 100
@@ -518,8 +541,18 @@ class Game:
         button_spacing = 20
         button_x_start = 200  
         button_y_start = 110
-        money = True
         back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
+        num_iterations = 10000
+        win_rates, loss_rates = self.monte_carlo_horse_racing(num_iterations)
+        message = ""
+        for i, horse in enumerate(["Horse Brown", "Horse Black", "Horse White", "Horse Grey", "Horse Red"]):
+            win_rate_percentage = win_rates[i] * 100
+            loss_rate_percentage = loss_rates[i] * 100
+            horse_info = f"{horse} - Win Rate: {win_rate_percentage:.2f}%, Loss Rate: {loss_rate_percentage:.2f}%"
+            message += horse_info + "\n"
+
+        easygui.msgbox(message, "ข้อมูลการแข่งขันของม้า")
+        money = True
         notenough = True
         BLACK = (0, 0, 0)
         BROWN = (102,51,0)
@@ -543,39 +576,25 @@ class Game:
             )
             buttons.append(button)
 
-        image_path_brown = "./assets/brown/move1.png"
-        button_image_brown = pygame.image.load(image_path_brown)
-
-        image_path_black = "./assets/black/move-black1.png"
-        button_image_black = pygame.image.load(image_path_black)
-
-        image_path_white = "./assets/white/move-white1.png"
-        button_image_white = pygame.image.load(image_path_white)
-
-        image_path_grey = "./assets/grey/move-grey1.png"
-        button_image_grey = pygame.image.load(image_path_grey)
-
-        image_path_red = "./assets/red/move-red1.png"
-        button_image_red = pygame.image.load(image_path_red)
+        # อำนวยความสะดวกให้คุณด้วยการโหลดรูปภาพม้าที่สมบูรณ์
+        image_paths = {
+            "Horse Brown": "./assets/brown/move1.png",
+            "Horse Black": "./assets/black/move-black1.png",
+            "Horse White": "./assets/white/move-white1.png",
+            "Horse Grey": "./assets/grey/move-grey1.png",
+            "Horse Red": "./assets/red/move-red1.png"
+        }
 
         button_images = {}
-
         image_positions = {}
 
         for i, button in enumerate(buttons):
-            if button.text == "Horse Brown":
-                button_images[button.text] = button_image_brown
-            elif button.text == "Horse Black":
-                button_images[button.text] = button_image_black
-            elif button.text == "Horse White":
-                button_images[button.text] = button_image_white
-            elif button.text == "Horse Grey":
-                button_images[button.text] = button_image_grey
-            elif button.text == "Horse Red":
-                button_images[button.text] = button_image_red
-            
-            image_positions[button.text] = (button_x_start - 170, (button_y_start - 50) + (100 + button_spacing) * i)
+            image_path = image_paths.get(button.text)
+            if image_path:
+                button_images[button.text] = pygame.image.load(image_path)
+                image_positions[button.text] = (button_x_start - 170, (button_y_start - 50) + (100 + button_spacing) * i)
 
+        # รายละเอียดปุ่มและโค้ดควบคุมอื่น ๆ
 
         additional_buttons = []
         numbers = [100, 1000, 10000]
@@ -593,7 +612,6 @@ class Game:
                 height=button_height,
             )
             additional_buttons.append(button)
-
 
         Type_buttons = []
         Types = ["Bet Win", "Bet Place"]
@@ -644,7 +662,6 @@ class Game:
                                         selected_type_buttons.remove(button)
                         selected_texts = [button.text for button in selected_type_buttons]
 
-  
                         for button in buttons:
                             if button.clicked(event.pos):
                                 if ("".join(selected_texts) == "Bet Place"):
@@ -677,9 +694,9 @@ class Game:
                                             notenough = True
                                         elif self.player.return_coin < selected_money_value:
                                             money = False                                                        
-                                    else:
-                                        selected_additional_buttons.remove(button)
-                                    print(money)
+                                        else:
+                                            selected_additional_buttons.remove(button)
+                                        print(money)
 
                         if submit_button.clicked(event.pos):
                             idx = 1
@@ -714,13 +731,13 @@ class Game:
                                     easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
                                 self.run()                                                                
                             elif (not notenough):
-                                easygui.msgbox("ฮั่นแนนนนนนนนนน่.....", "Alert")  
+                                easygui.msgbox("ฮั่นแนนนนนนนนน่.....", "Alert")  
                         elif (submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 3 and notenough or submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 1 and notenough):
                             easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
                         elif (not money):
-                             easygui.msgbox("ไปหาเงินมาก่อนนะจ๊ะ.....", "Alert")
-                             money = True
-                             notenough = False
+                            easygui.msgbox("ไปหาเงินมาก่อนนะจ๊ะ.....", "Alert")
+                            money = True
+                            notenough = False
                     if back.clicked(mouse_pos):
                         self.Choice_bet_play()
 
@@ -763,7 +780,7 @@ class Game:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.OK.clicked(mouse_pos):
-                        self.bet_()
+                        self.Choice_bet_play()
 
             self.screen.blit(result_text, (text_x + 10, 100))
             self.screen.blit(money, (money_x + 20, 500))
@@ -814,9 +831,9 @@ class Game:
                     self.result_ = ["WIN", "+"]
                     self.result()
                 elif (dequeue != dequeue_bet):
-                    self.bet_result = (self.bet_coin)
+                    self.bet_result = -self.bet_coin
                     self.player.update_coin(-self.bet_coin)
-                    self.result_ = ["LOSE", "-"]
+                    self.result_ = ["LOSE", ""]
                     self.result()
         elif self.bet_type == "Bet Place":
             for i in range(3):
@@ -830,7 +847,7 @@ class Game:
                 self.bet_result = self.bet_coin * 3
                 self.player.update_coin(self.bet_coin * 3)
             else:
-                self.bet_result = (self.bet_coin)
+                self.bet_result = self.bet_coin
                 self.player.update_coin(-self.bet_coin)
             self.My_queue.clear()
             self.bet_queue.clear()
