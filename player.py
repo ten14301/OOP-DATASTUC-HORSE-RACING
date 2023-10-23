@@ -12,6 +12,7 @@ class Player:
     def return_coin(self) -> int:
         return int(self.coin)
     
+
     def update_coin(self,coin):
         self.coin += coin
 

@@ -8,6 +8,7 @@ from player import Player
 from singlely_Link_list import LinkList
 from merg_sort import MergeSort
 from My_queue import queue,typequeue
+from My_stack import Stack
 from pygame import mixer
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, Player_Horse_red
 
@@ -29,6 +30,8 @@ class Game:
         self.bet_coin = bet_coin
         self.bet_result = b_result
         self.result_ = result
+        self.position = [375, 430, 485, 540, 595]
+        self.horse_stack = Stack()
         self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
         self.display.set_caption("Horse Racing")
@@ -326,22 +329,30 @@ class Game:
 
 
     def start_position_horse(self):
-        self.position = [375, 430, 485, 540, 595]
         n = len(self.position)
         random_numbers = [hash(obj + time.time()) for obj in self.position]
+        
         for i in range(n):
             j = random_numbers[i] % (n - 1)
             self.position[i], self.position[j] = self.position[j], self.position[i]
-        self.horse = Horse_brown(0, self.position[0])
-        self.horseb = Horse_black(0, self.position[1])
-        self.horsew = Horse_white(0, self.position[2])
-        self.horseg = Horse_grey(0, self.position[3])
-        self.horser = Horse_red(0, self.position[4])
+
+        # สร้างและเพิ่มตำแหน่งของม้าใน Stack
+        for p in self.position:
+            self.horse_stack.push(p)
+
+        # สร้างและแสดงม้า
+        self.horse = Horse_brown(0, self.horse_stack.pop())
+        self.horseb = Horse_black(0, self.horse_stack.pop())
+        self.horsew = Horse_white(0, self.horse_stack.pop())
+        self.horseg = Horse_grey(0, self.horse_stack.pop())
+        self.horser = Horse_red(0, self.horse_stack.pop())
+        
         self.moving_sprites.add(self.horse)
         self.moving_sprites.add(self.horseb)
         self.moving_sprites.add(self.horsew)
         self.moving_sprites.add(self.horseg)
         self.moving_sprites.add(self.horser)
+        
         self.horse.animate()
         self.horseb.animate()
         self.horsew.animate()
@@ -518,11 +529,8 @@ class Game:
         horses = [Horse_brown(0, 0), Horse_black(0, 0), Horse_white(0, 0), Horse_grey(0, 0), Horse_red(0, 0)]
 
         for _ in range(num_iterations):
-            # จำลองการแข่งขัน
             winning_horse_idx = random.randint(0, 4)
             player_choice_idx = random.randint(0, 4)
-            winning_horse = horses[winning_horse_idx]
-            player_choice = horses[player_choice_idx]
 
             if player_choice_idx == winning_horse_idx:
                 wins[player_choice_idx] += 1
@@ -548,7 +556,7 @@ class Game:
         for i, horse in enumerate(["Horse Brown", "Horse Black", "Horse White", "Horse Grey", "Horse Red"]):
             win_rate_percentage = win_rates[i] * 100
             loss_rate_percentage = loss_rates[i] * 100
-            horse_info = f"{horse} - Win Rate: {win_rate_percentage:.2f}%, Loss Rate: {loss_rate_percentage:.2f}%"
+            horse_info = f"{horse} - Win Rate: {win_rate_percentage:.2f}%"
             message += horse_info + "\n"
 
         easygui.msgbox(message, "ข้อมูลการแข่งขันของม้า")
@@ -576,7 +584,6 @@ class Game:
             )
             buttons.append(button)
 
-        # อำนวยความสะดวกให้คุณด้วยการโหลดรูปภาพม้าที่สมบูรณ์
         image_paths = {
             "Horse Brown": "./assets/brown/move1.png",
             "Horse Black": "./assets/black/move-black1.png",
