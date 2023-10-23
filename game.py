@@ -6,8 +6,9 @@ import easygui
 from button import Button,Select_button,TypeSelect_button,AdditionalSelect_button
 from player import Player
 from singlely_Link_list import LinkList
+from My_tree import BinarySearchTree
 from merg_sort import MergeSort
-from My_queue import queue,typequeue
+from My_queue import queue
 from My_stack import Stack
 from pygame import mixer
 from horse import Horse_brown, Horse_black, Horse_white, Horse_grey, Horse_red, Player_Horse_red
@@ -23,7 +24,8 @@ class Game:
         self.link_list = LinkList()
         self.merge_sort = MergeSort()
         self.My_queue = queue()
-        self.bet_queue = typequeue()
+        self.bet_queue = queue()
+        self.binary_tree = BinarySearchTree()
         self.player = Player(name,coin)
         self.horser = Player_Horse_red(0, 375)
         self.type_bet = type_bet
@@ -146,7 +148,6 @@ class Game:
             self.screen.blit(text, text_rect)
             self.display.flip()
             time.sleep(0.5)
-        
 
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.bg_image, (0, 0))
@@ -180,7 +181,7 @@ class Game:
     
             self.moving_sprites.draw(self.screen)
 
-            if self.horser.round_ >= 5:
+            if self.horser.round_ >= 1:
                 run = False
             print(self.horser.round_)
             self.display.flip()
@@ -525,8 +526,6 @@ class Game:
 
     def monte_carlo_horse_racing(self,num_iterations):
         wins = [0, 0, 0, 0, 0]
-        losses = [0, 0, 0, 0, 0]
-        horses = [Horse_brown(0, 0), Horse_black(0, 0), Horse_white(0, 0), Horse_grey(0, 0), Horse_red(0, 0)]
 
         for _ in range(num_iterations):
             winning_horse_idx = random.randint(0, 4)
@@ -534,13 +533,10 @@ class Game:
 
             if player_choice_idx == winning_horse_idx:
                 wins[player_choice_idx] += 1
-            else:
-                losses[player_choice_idx] += 1
 
         win_rates = [wins[i] / num_iterations for i in range(5)]
-        loss_rates = [losses[i] / num_iterations for i in range(5)]
 
-        return win_rates, loss_rates
+        return win_rates
     
     def bet_(self):
         self.screen.fill((0,0,0))
@@ -551,15 +547,14 @@ class Game:
         button_y_start = 110
         back = Button("<<<", self.font_save, (30, 30), (52, 78, 91), (100, 120, 140), 50, 50)
         num_iterations = 10000
-        win_rates, loss_rates = self.monte_carlo_horse_racing(num_iterations)
+        win_rates = self.monte_carlo_horse_racing(num_iterations)
         message = ""
         for i, horse in enumerate(["Horse Brown", "Horse Black", "Horse White", "Horse Grey", "Horse Red"]):
             win_rate_percentage = win_rates[i] * 100
-            loss_rate_percentage = loss_rates[i] * 100
             horse_info = f"{horse} - Win Rate: {win_rate_percentage:.2f}%"
             message += horse_info + "\n"
 
-        easygui.msgbox(message, "ข้อมูลการแข่งขันของม้า")
+        easygui.msgbox(message, "อัตราการชนะของม้า")
         money = True
         notenough = True
         BLACK = (0, 0, 0)
@@ -600,9 +595,6 @@ class Game:
             if image_path:
                 button_images[button.text] = pygame.image.load(image_path)
                 image_positions[button.text] = (button_x_start - 170, (button_y_start - 50) + (100 + button_spacing) * i)
-
-        # รายละเอียดปุ่มและโค้ดควบคุมอื่น ๆ
-
         additional_buttons = []
         numbers = [100, 1000, 10000]
         for i, number in enumerate(numbers):
@@ -843,23 +835,29 @@ class Game:
                     self.result_ = ["LOSE", ""]
                     self.result()
         elif self.bet_type == "Bet Place":
+            count = 0
+            check = False
             for i in range(3):
                 dequeue = self.My_queue.dequeue()
                 dequeue_bet = self.bet_queue.dequeue()
-                if (dequeue_bet == dequeue):
+                self.binary_tree.insert(i, dequeue_bet, "Win")
+                print(self.binary_tree.find_bet(i, dequeue))
+                if (self.binary_tree.find_bet(i, dequeue) == "Win"):
                     check = True
-                else:
-                    check = False
-            if (check == True):
+                    count += 1
+            print(check,count)
+            if (check == True and count == 3):
                 self.bet_result = self.bet_coin * 3
+                self.result_ = ["WIN", "+"]
                 self.player.update_coin(self.bet_coin * 3)
             else:
-                self.bet_result = self.bet_coin
+                self.result_ = ["LOSE", ""]
+                self.bet_result = -self.bet_coin
                 self.player.update_coin(-self.bet_coin)
             self.My_queue.clear()
             self.bet_queue.clear()
             self.player.auto_save()
-            self.bet_()       
+            self.result()     
 
 if __name__ == "__main__":
     game = Game()

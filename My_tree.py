@@ -38,21 +38,5 @@ class BinarySearchTree:
             return self._find_bet(root.right, result, horse)
         
 
-# สร้างอ็อบเจ็กต์ BettingTree
-betting_tree = BinarySearchTree()
 
-# สร้างการเดิมพัน
-betting_tree.insert(1, "Horse White", "Win")
-betting_tree.insert(2, "Horse Brown", "Lose")
-betting_tree.insert(3, "Horse Black", "Win")
 
-# ค้นหาการเดิมพัน
-bet1 = betting_tree.find_bet(1, "Horse White")
-bet2 = betting_tree.find_bet(2, "Horse Brown")
-bet3 = betting_tree.find_bet(3, "Horse Black")
-bet4 = betting_tree.find_bet(1, "Horse Black")
-
-print(bet1)  # ผลลัพธ์: "Win"
-print(bet2)  # ผลลัพธ์: "Lose"
-print(bet3)  # ผลลัพธ์: "Win"
-print(bet4)  # ผลลัพธ์: "Bet not found"
