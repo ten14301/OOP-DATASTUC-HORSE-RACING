@@ -34,6 +34,7 @@ class Game:
         self.result_ = result
         self.position = [375, 430, 485, 540, 595]
         self.horse_stack = Stack()
+        self.horse_stack2 = Stack()
         self.selected_players = selected_players
         self.screen = self.display.set_mode((800, 700))
         self.display.set_caption("Horse Racing")
@@ -330,6 +331,7 @@ class Game:
 
 
     def start_position_horse(self):
+        count = 0
         n = len(self.position)
         random_numbers = [hash(obj + time.time()) for obj in self.position]
         
@@ -337,16 +339,23 @@ class Game:
             j = random_numbers[i] % (n - 1)
             self.position[i], self.position[j] = self.position[j], self.position[i]
 
-        # สร้างและเพิ่มตำแหน่งของม้าใน Stack
-        for p in self.position:
-            self.horse_stack.push(p)
 
-        # สร้างและแสดงม้า
+
+        while count < 5:
+            if count % 2 == 0:
+                self.horse_stack2.push(int(self.position[count]))
+                print("Count")
+            else:
+                self.horse_stack.push(int(self.position[count]))
+                print("Count2")
+            print(count,self.position[count])
+            count += 1
+            
         self.horse = Horse_brown(0, self.horse_stack.pop())
         self.horseb = Horse_black(0, self.horse_stack.pop())
-        self.horsew = Horse_white(0, self.horse_stack.pop())
-        self.horseg = Horse_grey(0, self.horse_stack.pop())
-        self.horser = Horse_red(0, self.horse_stack.pop())
+        self.horsew = Horse_white(0, self.horse_stack2.pop())
+        self.horseg = Horse_grey(0, self.horse_stack2.pop())
+        self.horser = Horse_red(0, self.horse_stack2.pop())
         
         self.moving_sprites.add(self.horse)
         self.moving_sprites.add(self.horseb)
@@ -713,6 +722,7 @@ class Game:
                                         print(f"{idx}. {type_button.text}")
                                         self.bet_type = type_button.text
                                         idx += 1
+                                    self.run()  
                                 elif (("".join(selected_texts))== "Bet Win" and len(selected_additional_buttons) == 1 and len(selected_buttons) == 1):
                                     for selected_button in selected_buttons[:1]:
                                         print(f"{idx}. {selected_button.text}")
@@ -726,11 +736,12 @@ class Game:
                                         print(f"{idx}. {type_button.text}")
                                         self.bet_type = type_button.text
                                         idx += 1
+                                    self.run()  
                                 else:
-                                    easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
-                                self.run()                                                                
+                                    easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")                                                          
                             elif (not notenough):
-                                easygui.msgbox("ฮั่นแนนนนนนนนน่.....", "Alert")  
+                                easygui.msgbox("ฮั่นแนนนนนนนนน่.....", "Alert")
+    
                         elif (submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 3 and notenough or submit_button.clicked(event.pos) and len(selected_additional_buttons) != 1 and len(selected_buttons) != 1 and notenough):
                             easygui.msgbox("กรุณาเลือกให้ครบก่อน", "Alert")
                         elif (not money):
