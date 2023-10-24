@@ -795,7 +795,8 @@ class Game:
         self.music.stop()
         result_text = self.font_btn.render("YOU GOT MONEY!!!", True, (0, 0, 0))
         money = self.font_btn.render("+ 100", True, (0, 0, 0))
-
+        self.player.update_coin(100)
+        self.player.auto_save()
         text_width, text_height = result_text.get_size()
         money_width, money_height = money.get_size()
         screen_width, screen_height = self.screen.get_size()
@@ -817,6 +818,7 @@ class Game:
             self.screen.blit(money, (money_x + 10, 500))
             OK.render(self.screen, mouse_pos)
             self.display.flip()
+
 
     def pay_out(self):
         check = True
@@ -856,6 +858,7 @@ class Game:
                 self.player.update_coin(-self.bet_coin)
             self.My_queue.clear()
             self.bet_queue.clear()
+            self.binary_tree.clear()
             self.player.auto_save()
             self.result()     
 

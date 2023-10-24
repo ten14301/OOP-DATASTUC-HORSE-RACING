@@ -23,7 +23,6 @@ class BinarySearchTree:
             root.right = self._insert(root.right, result, horse, status)
         return root
 
-    #in-order traverse
     def find_bet(self, result, horse):
         return self._find_bet(self.root, result, horse)
 
@@ -36,6 +35,10 @@ class BinarySearchTree:
             return self._find_bet(root.left, result, horse)
         else:
             return self._find_bet(root.right, result, horse)
+        
+    def clear(self):
+        self.root = None
+
         
 
 
